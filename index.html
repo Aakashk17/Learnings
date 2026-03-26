@@ -17,8 +17,8 @@
         <p class="eyebrow">Personal Knowledge Hub</p>
         <h1>All your learnings in one place.</h1>
         <p class="hero__intro">
-          Drop HTML files into folders like <code>content/ai/claude/courses/course.html</code> and this homepage will
-          surface them automatically after the manifest is generated.
+          Drop HTML files into folders like <code>content/ai/claude/courses/course.html</code>. Browse one folder at a time,
+          preview your own HTML pages inside this site, and open external resources in a new tab.
         </p>
         <div class="hero__actions">
           <a class="button button--primary" href="#library">Browse library</a>
@@ -33,7 +33,9 @@
   ai/
     claude/
       courses/
-        course.html</code></pre>
+        course.html
+        prompts.html
+        artifact.link.json</code></pre>
       </div>
     </header>
 
@@ -45,42 +47,37 @@
         </div>
         <div class="library__controls">
           <label class="search">
-            <span class="search__label">Search</span>
-            <input id="searchInput" type="search" placeholder="Search topics or file names">
+            <span class="search__label">Search current folder</span>
+            <input id="searchInput" type="search" placeholder="Search folders or items here">
           </label>
         </div>
       </section>
 
       <section id="summaryCards" class="summary-grid" aria-label="Learning categories"></section>
 
-      <section class="tree-panel">
+      <section class="tree-panel browser-panel">
         <div class="tree-panel__header">
-          <h3>Learning tree</h3>
+          <h3>Folder browser</h3>
           <p id="statusText">Loading your library...</p>
         </div>
-        <div id="treeRoot" class="tree-root"></div>
+        <nav id="breadcrumbs" class="breadcrumbs" aria-label="Folder breadcrumbs"></nav>
+        <div id="browserGrid" class="browser-grid"></div>
+      </section>
+
+      <section id="viewerPanel" class="tree-panel viewer-panel" hidden>
+        <div class="viewer-panel__header">
+          <div>
+            <p class="eyebrow">Local Preview</p>
+            <h3 id="viewerTitle">Select a local HTML file</h3>
+            <p id="viewerMeta" class="viewer-meta">Your own HTML files will render inside this page.</p>
+          </div>
+          <button id="closeViewer" class="button button--secondary" type="button">Close preview</button>
+        </div>
+        <iframe id="viewerFrame" class="viewer-frame" title="Learning page preview"></iframe>
       </section>
     </main>
   </div>
 
-  <template id="nodeTemplate">
-    <article class="node">
-      <button class="node__toggle" type="button" aria-expanded="true">
-        <span class="node__name"></span>
-        <span class="node__meta"></span>
-      </button>
-      <div class="node__children"></div>
-    </article>
-  </template>
-
-  <template id="leafTemplate">
-    <a class="leaf" target="_self" rel="noopener">
-      <span class="leaf__title"></span>
-      <span class="leaf__path"></span>
-    </a>
-  </template>
-
   <script src="assets/js/app.js" defer></script>
 </body>
 </html>
-
