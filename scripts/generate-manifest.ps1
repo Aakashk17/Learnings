@@ -1,4 +1,4 @@
-﻿[CmdletBinding()]
+[CmdletBinding()]
 param(
     [string]$ContentRoot = "content",
     [string]$OutputFile = "content/manifest.json"
@@ -13,14 +13,14 @@ function Get-RelativePath {
         [Parameter(Mandatory = $true)][string]$TargetPath
     )
 
-    $resolvedBasePath = (Resolve-Path -LiteralPath $BasePath).Path.TrimEnd("\\")
+    $resolvedBasePath = (Resolve-Path -LiteralPath $BasePath).Path.TrimEnd([char[]]@('\', '/'))
     $resolvedTargetPath = (Resolve-Path -LiteralPath $TargetPath).Path
 
     if (-not $resolvedTargetPath.StartsWith($resolvedBasePath, [System.StringComparison]::OrdinalIgnoreCase)) {
         throw "Target path '$resolvedTargetPath' is not inside base path '$resolvedBasePath'."
     }
 
-    $relativePath = $resolvedTargetPath.Substring($resolvedBasePath.Length).TrimStart("\\")
+    $relativePath = $resolvedTargetPath.Substring($resolvedBasePath.Length).TrimStart([char[]]@('\', '/'))
 
     if ([string]::IsNullOrWhiteSpace($relativePath)) {
         return "."
