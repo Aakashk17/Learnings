@@ -1,9 +1,22 @@
 ﻿{
-    "generatedAt":  "2026-03-26T03:28:50.0066262Z",
-    "itemCount":  4,
+    "generatedAt":  "2026-03-26T05:44:54.0598517Z",
+    "itemCount":  15,
     "items":  [
                   {
-                      "title":  "Claude Artifact",
+                      "title":  "Claude Code in Action",
+                      "path":  "content/ai/claude/courses/course.html",
+                      "displayPath":  "content/ai/claude/courses/course.html",
+                      "kind":  "file",
+                      "target":  "_self",
+                      "segments":  [
+                                       "ai",
+                                       "claude",
+                                       "courses"
+                                   ],
+                      "updatedAt":  "2026-03-26T05:28:27.7273782Z"
+                  },
+                  {
+                      "title":  "Claude Code in Action",
                       "path":  "https://claude.ai/public/artifacts/c3ce2a40-84df-475e-b55d-6eb99017ba26",
                       "displayPath":  "Hosted externally",
                       "kind":  "external",
@@ -14,20 +27,162 @@
                                        "claude",
                                        "courses"
                                    ],
-                      "updatedAt":  "2026-03-26T03:28:25.9777402Z"
+                      "updatedAt":  "2026-03-26T05:28:17.9332053Z"
                   },
                   {
-                      "title":  "Claude Course",
-                      "path":  "content/ai/claude/courses/course.html",
-                      "displayPath":  "content/ai/claude/courses/course.html",
+                      "title":  "Build AI Apps with Claude From Zero",
+                      "path":  "https://gray-valene-48.tiiny.site/",
+                      "displayPath":  "Hosted externally",
+                      "kind":  "external",
+                      "target":  "_blank",
+                      "sourceFile":  "content/ai/claude/courses/build-ai-apps-with-claude-from-zero/build-ai-apps-with-claude-from-zero.link.json",
+                      "segments":  [
+                                       "ai",
+                                       "claude",
+                                       "courses",
+                                       "build-ai-apps-with-claude-from-zero"
+                                   ],
+                      "updatedAt":  "2026-03-26T05:30:22.5447211Z"
+                  },
+                  {
+                      "title":  "Build AI Apps with Claude From Zero - Part 01 - Accessing Claude with the API",
+                      "path":  "content/ai/claude/courses/build-ai-apps-with-claude-from-zero/part-01.html",
+                      "displayPath":  "content/ai/claude/courses/build-ai-apps-with-claude-from-zero/part-01.html",
                       "kind":  "file",
                       "target":  "_self",
                       "segments":  [
                                        "ai",
                                        "claude",
-                                       "courses"
+                                       "courses",
+                                       "build-ai-apps-with-claude-from-zero"
                                    ],
-                      "updatedAt":  "2026-03-26T03:13:44.3634576Z"
+                      "updatedAt":  "2026-03-26T05:44:41.0480947Z"
+                  },
+                  {
+                      "title":  "Build AI Apps with Claude From Zero - Part 02",
+                      "path":  "content/ai/claude/courses/build-ai-apps-with-claude-from-zero/part-02.html",
+                      "displayPath":  "content/ai/claude/courses/build-ai-apps-with-claude-from-zero/part-02.html",
+                      "kind":  "file",
+                      "target":  "_self",
+                      "segments":  [
+                                       "ai",
+                                       "claude",
+                                       "courses",
+                                       "build-ai-apps-with-claude-from-zero"
+                                   ],
+                      "updatedAt":  "2026-03-26T05:30:22.5710021Z"
+                  },
+                  {
+                      "title":  "Build AI Apps with Claude From Zero - Part 03",
+                      "path":  "content/ai/claude/courses/build-ai-apps-with-claude-from-zero/part-03.html",
+                      "displayPath":  "content/ai/claude/courses/build-ai-apps-with-claude-from-zero/part-03.html",
+                      "kind":  "file",
+                      "target":  "_self",
+                      "segments":  [
+                                       "ai",
+                                       "claude",
+                                       "courses",
+                                       "build-ai-apps-with-claude-from-zero"
+                                   ],
+                      "updatedAt":  "2026-03-26T05:30:22.9595428Z"
+                  },
+                  {
+                      "title":  "Build AI Apps with Claude From Zero - Part 04",
+                      "path":  "content/ai/claude/courses/build-ai-apps-with-claude-from-zero/part-04.html",
+                      "displayPath":  "content/ai/claude/courses/build-ai-apps-with-claude-from-zero/part-04.html",
+                      "kind":  "file",
+                      "target":  "_self",
+                      "segments":  [
+                                       "ai",
+                                       "claude",
+                                       "courses",
+                                       "build-ai-apps-with-claude-from-zero"
+                                   ],
+                      "updatedAt":  "2026-03-26T05:30:22.9817723Z"
+                  },
+                  {
+                      "title":  "Build AI Apps with Claude From Zero - Part 05",
+                      "path":  "content/ai/claude/courses/build-ai-apps-with-claude-from-zero/part-05.html",
+                      "displayPath":  "content/ai/claude/courses/build-ai-apps-with-claude-from-zero/part-05.html",
+                      "kind":  "file",
+                      "target":  "_self",
+                      "segments":  [
+                                       "ai",
+                                       "claude",
+                                       "courses",
+                                       "build-ai-apps-with-claude-from-zero"
+                                   ],
+                      "updatedAt":  "2026-03-26T05:30:22.9983811Z"
+                  },
+                  {
+                      "title":  "Build AI Apps with Claude From Zero - Part 06",
+                      "path":  "content/ai/claude/courses/build-ai-apps-with-claude-from-zero/part-06.html",
+                      "displayPath":  "content/ai/claude/courses/build-ai-apps-with-claude-from-zero/part-06.html",
+                      "kind":  "file",
+                      "target":  "_self",
+                      "segments":  [
+                                       "ai",
+                                       "claude",
+                                       "courses",
+                                       "build-ai-apps-with-claude-from-zero"
+                                   ],
+                      "updatedAt":  "2026-03-26T05:30:23.0065112Z"
+                  },
+                  {
+                      "title":  "Build AI Apps with Claude From Zero - Part 07",
+                      "path":  "content/ai/claude/courses/build-ai-apps-with-claude-from-zero/part-07.html",
+                      "displayPath":  "content/ai/claude/courses/build-ai-apps-with-claude-from-zero/part-07.html",
+                      "kind":  "file",
+                      "target":  "_self",
+                      "segments":  [
+                                       "ai",
+                                       "claude",
+                                       "courses",
+                                       "build-ai-apps-with-claude-from-zero"
+                                   ],
+                      "updatedAt":  "2026-03-26T05:30:23.0112094Z"
+                  },
+                  {
+                      "title":  "Build AI Apps with Claude From Zero - Part 08",
+                      "path":  "content/ai/claude/courses/build-ai-apps-with-claude-from-zero/part-08.html",
+                      "displayPath":  "content/ai/claude/courses/build-ai-apps-with-claude-from-zero/part-08.html",
+                      "kind":  "file",
+                      "target":  "_self",
+                      "segments":  [
+                                       "ai",
+                                       "claude",
+                                       "courses",
+                                       "build-ai-apps-with-claude-from-zero"
+                                   ],
+                      "updatedAt":  "2026-03-26T05:30:23.0147663Z"
+                  },
+                  {
+                      "title":  "Build AI Apps with Claude From Zero - Part 09",
+                      "path":  "content/ai/claude/courses/build-ai-apps-with-claude-from-zero/part-09.html",
+                      "displayPath":  "content/ai/claude/courses/build-ai-apps-with-claude-from-zero/part-09.html",
+                      "kind":  "file",
+                      "target":  "_self",
+                      "segments":  [
+                                       "ai",
+                                       "claude",
+                                       "courses",
+                                       "build-ai-apps-with-claude-from-zero"
+                                   ],
+                      "updatedAt":  "2026-03-26T05:30:23.0204201Z"
+                  },
+                  {
+                      "title":  "Build AI Apps with Claude From Zero - Part 10",
+                      "path":  "content/ai/claude/courses/build-ai-apps-with-claude-from-zero/part-10.html",
+                      "displayPath":  "content/ai/claude/courses/build-ai-apps-with-claude-from-zero/part-10.html",
+                      "kind":  "file",
+                      "target":  "_self",
+                      "segments":  [
+                                       "ai",
+                                       "claude",
+                                       "courses",
+                                       "build-ai-apps-with-claude-from-zero"
+                                   ],
+                      "updatedAt":  "2026-03-26T05:30:23.0448497Z"
                   },
                   {
                       "title":  "Back-End Start Here",

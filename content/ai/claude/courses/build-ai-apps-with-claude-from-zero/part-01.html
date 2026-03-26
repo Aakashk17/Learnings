@@ -1,0 +1,1801 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Build AI Apps with Claude From Zero - Part 01 - Accessing Claude with the API</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,600;1,8..60,300;1,8..60,400&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --cream: #faf7f2;
+    --paper: #f4f0e8;
+    --ink: #1a1512;
+    --ink-mid: #3d3530;
+    --ink-light: #7a6f67;
+    --accent: #c84b2f;       /* warm red */
+    --accent2: #2563a8;      /* blue */
+    --accent3: #1a7a4a;      /* green */
+    --accent-gold: #b8860b;
+    --rule: #d4c9bb;
+    --code-bg: #1e1a17;
+    --code-text: #e8e0d5;
+    --better-bg: rgba(37,99,168,0.07);
+    --better-border: #2563a8;
+    --course-bg: rgba(200,75,47,0.07);
+    --course-border: #c84b2f;
+    --font-head: 'Playfair Display', Georgia, serif;
+    --font-body: 'Source Serif 4', Georgia, serif;
+    --font-code: 'JetBrains Mono', 'Courier New', monospace;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; font-size: 17px; }
+
+  body {
+    background: var(--cream);
+    color: var(--ink);
+    font-family: var(--font-body);
+    line-height: 1.8;
+    overflow-x: hidden;
+  }
+
+  /* ── READING PROGRESS ── */
+  #progress {
+    position: fixed; top: 0; left: 0; height: 3px;
+    background: var(--accent); z-index: 1000;
+    transition: width 0.08s linear;
+    width: 0%;
+    box-shadow: 0 0 6px rgba(200,75,47,0.5);
+  }
+
+  /* ── STICKY TOC ── */
+  .toc-sidebar {
+    position: fixed;
+    left: 24px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 180px;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .toc-label {
+    font-family: var(--font-code);
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-light);
+    margin-bottom: 8px;
+  }
+  .toc-link {
+    font-family: var(--font-code);
+    font-size: 11px;
+    color: var(--ink-light);
+    text-decoration: none;
+    padding: 4px 0 4px 12px;
+    border-left: 2px solid var(--rule);
+    transition: color 0.2s, border-color 0.2s;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .toc-link:hover, .toc-link.active {
+    color: var(--accent);
+    border-color: var(--accent);
+  }
+  @media (max-width: 1200px) { .toc-sidebar { display: none; } }
+
+  /* ── MASTHEAD ── */
+  .masthead {
+    background: var(--ink);
+    color: var(--cream);
+    text-align: center;
+    padding: 0;
+    border-bottom: 3px solid var(--accent);
+    position: relative;
+    overflow: hidden;
+  }
+  .masthead-top {
+    padding: 18px 32px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+  }
+  .masthead-series {
+    font-family: var(--font-code);
+    font-size: 11px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 6px;
+  }
+  .masthead-main {
+    padding: 48px 32px 56px;
+    max-width: 860px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 2;
+  }
+  .chapter-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid rgba(200,75,47,0.5);
+    padding: 6px 16px;
+    border-radius: 2px;
+    font-family: var(--font-code);
+    font-size: 12px;
+    letter-spacing: 0.15em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 28px;
+  }
+  .masthead-title {
+    font-family: var(--font-head);
+    font-size: clamp(38px, 5.5vw, 76px);
+    font-weight: 900;
+    line-height: 1.02;
+    letter-spacing: -0.02em;
+    color: var(--cream);
+    margin-bottom: 24px;
+    font-style: italic;
+  }
+  .masthead-title .normal { font-style: normal; }
+  .masthead-subtitle {
+    font-family: var(--font-body);
+    font-size: 18px;
+    color: rgba(250,247,242,0.65);
+    max-width: 580px;
+    margin: 0 auto 36px;
+    line-height: 1.65;
+    font-weight: 300;
+  }
+  .masthead-byline {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+  .byline-item {
+    font-family: var(--font-code);
+    font-size: 12px;
+    color: rgba(250,247,242,0.5);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .byline-item span { color: var(--cream); }
+  .masthead-bg-pattern {
+    position: absolute;
+    inset: 0;
+    background-image: 
+      repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(255,255,255,0.03) 39px, rgba(255,255,255,0.03) 40px),
+      repeating-linear-gradient(90deg, transparent, transparent 39px, rgba(255,255,255,0.02) 39px, rgba(255,255,255,0.02) 40px);
+    z-index: 1;
+  }
+
+  /* ── LESSON PILLS ── */
+  .lesson-nav {
+    background: var(--paper);
+    border-bottom: 1px solid var(--rule);
+    padding: 14px 32px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .lesson-pill {
+    font-family: var(--font-code);
+    font-size: 11px;
+    padding: 5px 12px;
+    border-radius: 2px;
+    border: 1px solid var(--rule);
+    color: var(--ink-light);
+    text-decoration: none;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .lesson-pill:hover {
+    background: var(--ink);
+    color: var(--cream);
+    border-color: var(--ink);
+  }
+
+  /* ── MAIN LAYOUT ── */
+  .content-wrap {
+    max-width: 740px;
+    margin: 0 auto;
+    padding: 0 28px 100px;
+  }
+
+  /* ── LESSON SECTIONS ── */
+  .lesson {
+    padding: 64px 0 52px;
+    border-bottom: 1px solid var(--rule);
+  }
+  .lesson:last-child { border-bottom: none; }
+
+  .lesson-header {
+    margin-bottom: 32px;
+  }
+  .lesson-tag {
+    font-family: var(--font-code);
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+  .lesson-tag::before {
+    content: '';
+    display: block;
+    width: 28px;
+    height: 1px;
+    background: var(--accent);
+  }
+
+  h2 {
+    font-family: var(--font-head);
+    font-size: clamp(26px, 3.5vw, 42px);
+    font-weight: 900;
+    line-height: 1.1;
+    color: var(--ink);
+    margin-bottom: 6px;
+  }
+  h2 em { color: var(--accent); font-style: italic; }
+
+  .lesson-intro {
+    font-size: 18px;
+    color: var(--ink-mid);
+    line-height: 1.75;
+    margin-top: 16px;
+    font-weight: 300;
+    border-left: 3px solid var(--rule);
+    padding-left: 18px;
+  }
+
+  h3 {
+    font-family: var(--font-head);
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--ink);
+    margin: 44px 0 14px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  h3 .h3-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    background: var(--ink);
+    color: var(--cream);
+    border-radius: 2px;
+    font-family: var(--font-code);
+    font-size: 12px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  p {
+    color: var(--ink-mid);
+    margin-bottom: 18px;
+    font-size: 17px;
+    line-height: 1.8;
+  }
+
+  strong { color: var(--ink); font-weight: 600; }
+
+  /* ── ANALOGY BOX ── */
+  .analogy {
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    border-left: 4px solid var(--accent-gold);
+    padding: 22px 26px;
+    margin: 28px 0;
+    border-radius: 0 6px 6px 0;
+    position: relative;
+  }
+  .analogy::before {
+    content: '💡';
+    position: absolute;
+    top: -12px;
+    left: 20px;
+    font-size: 20px;
+    background: var(--paper);
+    padding: 0 6px;
+  }
+  .analogy-label {
+    font-family: var(--font-code);
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent-gold);
+    margin-bottom: 8px;
+  }
+  .analogy p { margin: 0; color: var(--ink-mid); font-size: 16px; }
+
+  /* ── TWO COLUMN COMPARE: COURSE vs BETTER ── */
+  .compare-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin: 28px 0;
+  }
+  @media (max-width: 640px) { .compare-grid { grid-template-columns: 1fr; } }
+
+  .compare-box {
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid var(--rule);
+  }
+  .compare-header {
+    padding: 10px 16px;
+    font-family: var(--font-code);
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .compare-box.course .compare-header {
+    background: var(--course-bg);
+    color: var(--accent);
+    border-bottom: 1px solid rgba(200,75,47,0.2);
+  }
+  .compare-box.better .compare-header {
+    background: var(--better-bg);
+    color: var(--accent2);
+    border-bottom: 1px solid rgba(37,99,168,0.2);
+  }
+  .compare-body { padding: 0; }
+
+  /* ── CODE BLOCKS ── */
+  .code-block {
+    background: var(--code-bg);
+    border-radius: 8px;
+    overflow: hidden;
+    margin: 20px 0;
+    border: 1px solid rgba(255,255,255,0.06);
+  }
+  .compare-body .code-block {
+    margin: 0;
+    border-radius: 0;
+    border: none;
+  }
+  .code-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 16px;
+    background: rgba(255,255,255,0.04);
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  .code-dots { display: flex; gap: 5px; }
+  .cdot { width: 9px; height: 9px; border-radius: 50%; }
+  .cdot-r { background: #ff6159; }
+  .cdot-y { background: #febc2e; }
+  .cdot-g { background: #28c840; }
+  .code-title {
+    font-family: var(--font-code);
+    font-size: 11px;
+    color: rgba(232,224,213,0.4);
+    letter-spacing: 0.05em;
+  }
+  pre {
+    padding: 20px;
+    overflow-x: auto;
+    font-family: var(--font-code);
+    font-size: 13.5px;
+    line-height: 1.75;
+    color: var(--code-text);
+  }
+  .compare-body pre { padding: 16px; font-size: 12.5px; }
+
+  /* syntax colors */
+  .k { color: #f07178; }       /* keyword */
+  .s { color: #c3e88d; }       /* string */
+  .f { color: #82aaff; }       /* function */
+  .c { color: #546e7a; font-style: italic; } /* comment */
+  .n { color: #f78c6c; }       /* number */
+  .v { color: #ffcb6b; }       /* variable */
+  .p { color: #89ddff; }       /* punctuation */
+  .t { color: #c792ea; }       /* type/class */
+
+  /* ── TIP / WARNING ── */
+  .callout {
+    border-radius: 6px;
+    padding: 18px 22px;
+    margin: 24px 0;
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+  }
+  .callout-icon { font-size: 20px; flex-shrink: 0; }
+  .callout p { margin: 0; font-size: 15.5px; line-height: 1.65; }
+  .callout strong { font-weight: 700; }
+  .callout.tip {
+    background: rgba(26,122,74,0.07);
+    border: 1px solid rgba(26,122,74,0.25);
+  }
+  .callout.tip .callout-icon::after { content: '✅'; }
+  .callout.warn {
+    background: rgba(200,75,47,0.07);
+    border: 1px solid rgba(200,75,47,0.25);
+  }
+  .callout.warn .callout-icon::after { content: '⚠️'; }
+  .callout.info {
+    background: rgba(37,99,168,0.07);
+    border: 1px solid rgba(37,99,168,0.2);
+  }
+  .callout.info .callout-icon::after { content: '📌'; }
+
+  /* ── UPGRADE BOX ── */
+  .upgrade-section {
+    background: linear-gradient(135deg, rgba(37,99,168,0.06), rgba(37,99,168,0.03));
+    border: 1px solid rgba(37,99,168,0.25);
+    border-top: 3px solid var(--accent2);
+    border-radius: 0 0 8px 8px;
+    padding: 28px 28px 24px;
+    margin: 36px 0;
+    position: relative;
+  }
+  .upgrade-label {
+    position: absolute;
+    top: -13px;
+    left: 20px;
+    background: var(--accent2);
+    color: #fff;
+    font-family: var(--font-code);
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 3px 12px;
+    border-radius: 2px;
+  }
+  .upgrade-section h3 {
+    margin-top: 8px;
+    color: var(--accent2);
+    font-size: 19px;
+    gap: 8px;
+  }
+  .upgrade-section p { font-size: 16px; }
+
+  /* ── WHAT THE COURSE DOES ── */
+  .course-section {
+    background: linear-gradient(135deg, rgba(200,75,47,0.06), rgba(200,75,47,0.03));
+    border: 1px solid rgba(200,75,47,0.2);
+    border-top: 3px solid var(--accent);
+    border-radius: 0 0 8px 8px;
+    padding: 28px 28px 24px;
+    margin: 36px 0;
+    position: relative;
+  }
+  .course-label {
+    position: absolute;
+    top: -13px;
+    left: 20px;
+    background: var(--accent);
+    color: #fff;
+    font-family: var(--font-code);
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 3px 12px;
+    border-radius: 2px;
+  }
+  .course-section h3 { margin-top: 8px; color: var(--accent); font-size: 19px; }
+  .course-section p { font-size: 16px; }
+
+  /* ── TEMPERATURE VISUAL ── */
+  .temp-scale {
+    display: flex;
+    align-items: stretch;
+    margin: 28px 0;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid var(--rule);
+  }
+  .temp-col {
+    flex: 1;
+    padding: 20px 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 8px;
+    border-right: 1px solid var(--rule);
+    transition: background 0.2s;
+  }
+  .temp-col:last-child { border-right: none; }
+  .temp-col:hover { background: var(--paper); }
+  .temp-emoji { font-size: 26px; }
+  .temp-val {
+    font-family: var(--font-code);
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--ink);
+    background: var(--paper);
+    padding: 2px 8px;
+    border-radius: 4px;
+    border: 1px solid var(--rule);
+  }
+  .temp-label {
+    font-family: var(--font-head);
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--ink);
+  }
+  .temp-desc {
+    font-family: var(--font-body);
+    font-size: 13px;
+    color: var(--ink-light);
+    line-height: 1.5;
+  }
+  .temp-use {
+    font-family: var(--font-code);
+    font-size: 11px;
+    color: var(--accent3);
+    background: rgba(26,122,74,0.08);
+    padding: 3px 8px;
+    border-radius: 4px;
+  }
+
+  /* ── STREAMING FLOW DIAGRAM ── */
+  .stream-diagram {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    margin: 28px 0;
+    flex-wrap: wrap;
+  }
+  .stream-step {
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    padding: 14px 18px;
+    text-align: center;
+    min-width: 110px;
+  }
+  .stream-step-icon { font-size: 22px; margin-bottom: 6px; }
+  .stream-step-label {
+    font-family: var(--font-code);
+    font-size: 11px;
+    color: var(--ink-light);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+  .stream-step-val {
+    font-family: var(--font-body);
+    font-size: 13px;
+    color: var(--ink);
+    font-weight: 600;
+    margin-top: 4px;
+  }
+  .stream-arrow {
+    font-size: 20px;
+    color: var(--accent);
+    padding: 0 8px;
+    font-weight: 700;
+  }
+
+  /* ── STRUCTURED DATA VISUAL ── */
+  .json-compare {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin: 28px 0;
+  }
+  @media (max-width: 600px) { .json-compare { grid-template-columns: 1fr; } }
+  .json-box {
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid var(--rule);
+  }
+  .json-header {
+    padding: 10px 14px;
+    font-family: var(--font-code);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .json-box.bad .json-header { background: rgba(200,75,47,0.1); color: var(--accent); }
+  .json-box.good .json-header { background: rgba(26,122,74,0.1); color: var(--accent3); }
+
+  /* ── SYSTEM PROMPT LEVELS ── */
+  .levels {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin: 28px 0;
+  }
+  .level-item {
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .level-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 18px;
+    background: var(--paper);
+    cursor: pointer;
+    user-select: none;
+  }
+  .level-num {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-family: var(--font-code);
+    font-size: 13px;
+    font-weight: 700;
+    flex-shrink: 0;
+    color: #fff;
+  }
+  .l1 { background: #7a6f67; }
+  .l2 { background: var(--accent); }
+  .l3 { background: var(--accent2); }
+  .l4 { background: var(--accent3); }
+  .level-title {
+    font-family: var(--font-head);
+    font-weight: 700;
+    font-size: 16px;
+    color: var(--ink);
+    flex: 1;
+  }
+  .level-tag {
+    font-family: var(--font-code);
+    font-size: 11px;
+    padding: 3px 8px;
+    border-radius: 4px;
+  }
+  .l1-tag { background: rgba(122,111,103,0.12); color: #7a6f67; }
+  .l2-tag { background: rgba(200,75,47,0.1); color: var(--accent); }
+  .l3-tag { background: rgba(37,99,168,0.1); color: var(--accent2); }
+  .l4-tag { background: rgba(26,122,74,0.1); color: var(--accent3); }
+  .level-body { background: var(--code-bg); }
+
+  /* ── PULL QUOTE ── */
+  .pull-quote {
+    font-family: var(--font-head);
+    font-size: 22px;
+    font-style: italic;
+    font-weight: 400;
+    color: var(--ink);
+    text-align: center;
+    padding: 36px 0;
+    border-top: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+    margin: 40px 0;
+    line-height: 1.5;
+    position: relative;
+  }
+  .pull-quote::before {
+    content: '"';
+    font-size: 80px;
+    color: var(--accent);
+    opacity: 0.2;
+    position: absolute;
+    top: -10px;
+    left: 0;
+    font-style: normal;
+    line-height: 1;
+  }
+
+  /* ── SECTION DIVIDER ── */
+  .sec-divider {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin: 12px 0 0;
+  }
+  .sec-divider::before, .sec-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--rule);
+  }
+  .sec-divider-text {
+    font-family: var(--font-code);
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--ink-light);
+    white-space: nowrap;
+  }
+
+  /* ── RECAP CARD ── */
+  .recap {
+    background: var(--ink);
+    color: var(--cream);
+    border-radius: 10px;
+    padding: 32px;
+    margin: 48px 0 0;
+  }
+  .recap-title {
+    font-family: var(--font-head);
+    font-size: 22px;
+    font-weight: 900;
+    margin-bottom: 20px;
+    color: var(--cream);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .recap-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 12px;
+  }
+  .recap-item {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 6px;
+    padding: 14px 16px;
+  }
+  .recap-item-icon { font-size: 20px; margin-bottom: 6px; }
+  .recap-item-title {
+    font-family: var(--font-code);
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--cream);
+    margin-bottom: 4px;
+    letter-spacing: 0.05em;
+  }
+  .recap-item-desc {
+    font-size: 13px;
+    color: rgba(250,247,242,0.55);
+    line-height: 1.5;
+  }
+
+  /* ── NAV FOOTER ── */
+  .nav-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 32px 28px;
+    background: var(--paper);
+    border-top: 1px solid var(--rule);
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-top: 60px;
+  }
+  .nav-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-family: var(--font-code);
+    font-size: 13px;
+    padding: 12px 22px;
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    color: var(--ink);
+    text-decoration: none;
+    background: var(--cream);
+    transition: all 0.15s;
+  }
+  .nav-btn:hover { background: var(--ink); color: var(--cream); border-color: var(--ink); }
+  .nav-btn.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .nav-btn.primary:hover { background: #a83d24; border-color: #a83d24; }
+
+  /* ── INLINE CODE ── */
+  code {
+    font-family: var(--font-code);
+    font-size: 0.88em;
+    background: rgba(0,0,0,0.07);
+    padding: 1px 6px;
+    border-radius: 3px;
+    color: var(--accent);
+  }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .masthead-main > * { animation: fadeUp 0.6s ease both; }
+  .chapter-badge { animation-delay: 0s; }
+  .masthead-title { animation-delay: 0.1s; }
+  .masthead-subtitle { animation-delay: 0.2s; }
+  .masthead-byline { animation-delay: 0.3s; }
+</style>
+</head>
+<body>
+
+<div id="progress"></div>
+
+<!-- ═══ STICKY TOC ═══ -->
+<nav class="toc-sidebar" aria-label="Table of contents">
+  <div class="toc-label">In this chapter</div>
+  <a class="toc-link" href="#setup">Setup & API Key</a>
+  <a class="toc-link" href="#first-request">First Request</a>
+  <a class="toc-link" href="#multiturn">Multi-Turn Chat</a>
+  <a class="toc-link" href="#system-prompts">System Prompts</a>
+  <a class="toc-link" href="#temperature">Temperature</a>
+  <a class="toc-link" href="#streaming">Streaming</a>
+  <a class="toc-link" href="#structured">Structured Data</a>
+  <a class="toc-link" href="#recap">Recap</a>
+</nav>
+
+<!-- ═══ MASTHEAD ═══ -->
+<header class="masthead">
+  <div class="masthead-bg-pattern"></div>
+  <div class="masthead-top">
+    <div class="masthead-series">Building with the Claude API · Chapter 1 of 9</div>
+  </div>
+  <div class="masthead-main">
+    <div class="chapter-badge">📡 Lesson 1 — Foundation</div>
+    <h1 class="masthead-title">
+      Accessing Claude<br>
+      <span class="normal">with the API</span>
+    </h1>
+    <p class="masthead-subtitle">
+      Everything the course teaches — plus deeper examples, better patterns, and real "what happens if I do this?" explanations. Written for curious 15-year-olds who actually want to build stuff.
+    </p>
+    <div class="masthead-byline">
+      <div class="byline-item">📚 Covers <span>8 lessons</span></div>
+      <div class="byline-item">⏱️ Reading time <span>~30 min</span></div>
+      <div class="byline-item">🐍 Language <span>Python</span></div>
+      <div class="byline-item">🎯 Level <span>Absolute Beginner</span></div>
+    </div>
+  </div>
+</header>
+
+<!-- ═══ LESSON PILLS ═══ -->
+<div class="lesson-nav">
+  <a class="lesson-pill" href="#setup">Getting an API Key</a>
+  <a class="lesson-pill" href="#first-request">Making a Request</a>
+  <a class="lesson-pill" href="#multiturn">Multi-Turn Conversations</a>
+  <a class="lesson-pill" href="#system-prompts">System Prompts</a>
+  <a class="lesson-pill" href="#temperature">Temperature</a>
+  <a class="lesson-pill" href="#streaming">Response Streaming</a>
+  <a class="lesson-pill" href="#structured">Structured Data</a>
+</div>
+
+<!-- ═══ CONTENT ═══ -->
+<main class="content-wrap">
+
+  <!-- ─────────────────────────────────────────────
+       LESSON 1 — SETUP & API KEY
+  ──────────────────────────────────────────────── -->
+  <section class="lesson" id="setup">
+    <div class="lesson-header">
+      <div class="lesson-tag">Lesson 1 — Accessing the API</div>
+      <h2>Getting your <em>API Key</em> & Setting Up</h2>
+      <p class="lesson-intro">Before Claude can work inside your app, you need two things: the right Python library installed, and a secret key that proves it's really you talking to Anthropic's servers.</p>
+    </div>
+
+    <h3><span class="h3-num">1</span> What even is an API?</h3>
+    <p>An <strong>API</strong> (Application Programming Interface) is a way for two programs to talk to each other. Think of Anthropic's servers as a restaurant kitchen — you can't walk in and cook yourself, but you can order from the menu (the API). You say what you want, the kitchen makes it, and the waiter brings it back to you.</p>
+    <p>In code terms: <strong>you write Python → it sends a message to Anthropic's servers → Claude responds → you get the answer back</strong>. Simple loop. That's the whole thing.</p>
+
+    <div class="analogy">
+      <div class="analogy-label">Real-life analogy — Zomato</div>
+      <p>Using Claude's API is like ordering on Zomato. You don't enter the kitchen. You just place an order (your message), the restaurant (Claude) cooks it up, and Zomato (the API) delivers it to you. The API is just the delivery layer between you and Claude.</p>
+    </div>
+
+    <h3><span class="h3-num">2</span> Install the library</h3>
+    <p>Open your terminal and run this one line:</p>
+
+    <div class="code-block">
+      <div class="code-bar">
+        <div class="code-dots"><div class="cdot cdot-r"></div><div class="cdot cdot-y"></div><div class="cdot cdot-g"></div></div>
+        <span class="code-title">Terminal</span>
+      </div>
+      <pre>pip install anthropic</pre>
+    </div>
+
+    <p>This downloads the official Anthropic Python library — it's the "Zomato app" that handles all the messy connection details so you can just write simple Python.</p>
+
+    <h3><span class="h3-num">3</span> Get your API Key</h3>
+    <p>Go to <strong>console.anthropic.com</strong>, sign up for free, and navigate to <strong>API Keys → Create Key</strong>. You'll see something like:</p>
+
+    <div class="code-block">
+      <div class="code-bar">
+        <div class="code-dots"><div class="cdot cdot-r"></div><div class="cdot cdot-y"></div><div class="cdot cdot-g"></div></div>
+        <span class="code-title">Your API Key (example — not a real one!)</span>
+      </div>
+      <pre>sk-ant-api03-AbCdEfGhIjKlMnOpQrStUvWxYz1234567890-XXXXXXXXXXXXXXXXXXX</pre>
+    </div>
+
+    <div class="callout warn">
+      <div class="callout-icon"></div>
+      <p><strong>NEVER paste your API key directly in your code!</strong> If you push that code to GitHub, anyone in the world can steal it and use your account — and you'll pay the bill. Always store it in a <code>.env</code> file instead.</p>
+    </div>
+
+    <div class="course-section">
+      <div class="course-label">📖 What the course does</div>
+      <h3>Course approach — environment variable</h3>
+      <p>The course shows you to store your key in a <code>.env</code> file and use the <code>python-dotenv</code> library to load it:</p>
+      <div class="code-block">
+        <div class="code-bar">
+          <div class="code-dots"><div class="cdot cdot-r"></div><div class="cdot cdot-y"></div><div class="cdot cdot-g"></div></div>
+          <span class="code-title">.env file</span>
+        </div>
+        <pre>ANTHROPIC_API_KEY=sk-ant-api03-your-key-here</pre>
+      </div>
+      <div class="code-block">
+        <div class="code-bar">
+          <div class="code-dots"><div class="cdot cdot-r"></div><div class="cdot cdot-y"></div><div class="cdot cdot-g"></div></div>
+          <span class="code-title">Python — loading the key</span>
+        </div>
+        <pre><span class="k">from</span> dotenv <span class="k">import</span> load_dotenv
+load_dotenv()  <span class="c"># reads .env file into environment variables</span>
+
+<span class="k">import</span> anthropic
+<span class="v">client</span> = anthropic.<span class="t">Anthropic</span>()
+<span class="c"># Anthropic() automatically finds ANTHROPIC_API_KEY in env</span></pre>
+      </div>
+    </div>
+
+    <div class="upgrade-section">
+      <div class="upgrade-label">⬆ Even better approach</div>
+      <h3>Use a <code>.gitignore</code> too — protect yourself automatically</h3>
+      <p>The course teaches the .env approach, which is great. But you should also add a <code>.gitignore</code> file so your .env is <em>never accidentally pushed to GitHub</em>. This is what professional developers do every single time.</p>
+      <div class="code-block">
+        <div class="code-bar">
+          <div class="code-dots"><div class="cdot cdot-r"></div><div class="cdot cdot-y"></div><div class="cdot cdot-g"></div></div>
+          <span class="code-title">.gitignore</span>
+        </div>
+        <pre><span class="c"># Never push these to GitHub:</span>
+.env
+.env.local
+__pycache__/
+*.pyc</pre>
+      </div>
+      <p>Also — at a professional level, you'd use a secrets manager like <strong>AWS Secrets Manager</strong> or just set the environment variable directly on the server. But for learning, <code>.env</code> + <code>.gitignore</code> is perfect.</p>
+    </div>
+  </section>
+
+  <!-- ─────────────────────────────────────────────
+       LESSON 2 — MAKING A REQUEST
+  ──────────────────────────────────────────────── -->
+  <section class="lesson" id="first-request">
+    <div class="lesson-header">
+      <div class="lesson-tag">Lesson 2 — Making a Request</div>
+      <h2>Your First <em>Message</em> to Claude</h2>
+      <p class="lesson-intro">Now the fun starts. Let's send Claude a question and print the answer. This is the "Hello World" of AI programming.</p>
+    </div>
+
+    <div class="course-section">
+      <div class="course-label">📖 What the course does</div>
+      <h3>The basic request — course example</h3>
+      <p>The course shows the simplest possible call — one message in, one answer out:</p>
+      <div class="code-block">
+        <div class="code-bar">
+          <div class="code-dots"><div class="cdot cdot-r"></div><div class="cdot cdot-y"></div><div class="cdot cdot-g"></div></div>
+          <span class="code-title">Python — basic request (course style)</span>
+        </div>
+        <pre><span class="k">import</span> anthropic
+
+<span class="v">client</span> = anthropic.<span class="t">Anthropic</span>()
+
+<span class="v">message</span> = client.messages.<span class="f">create</span>(
+    model=<span class="s">"claude-opus-4-6"</span>,
+    max_tokens=<span class="n">1024</span>,
+    messages=[
+        {<span class="s">"role"</span>: <span class="s">"user"</span>, <span class="s">"content"</span>: <span class="s">"Hello, Claude!"</span>}
+    ]
+)
+
+<span class="f">print</span>(<span class="v">message</span>.content[<span class="n">0</span>].text)</pre>
+      </div>
+    </div>
+
+    <h3><span class="h3-num">1</span> What does each part mean?</h3>
+    <p>Let's break apart every line — not just what it does, but <em>why</em> it exists:</p>
+
+    <div class="code-block">
+      <div class="code-bar">
+        <div class="code-dots"><div class="cdot cdot-r"></div><div class="cdot cdot-y"></div><div class="cdot cdot-g"></div></div>
+        <span class="code-title">Annotated request</span>
+      </div>
+      <pre>client.messages.<span class="f">create</span>(
+
+    <span class="c"># WHICH Claude model to use</span>
+    <span class="c"># claude-opus-4-6 = smartest, most expensive</span>
+    <span class="c"># claude-sonnet-4-6 = balanced speed/cost</span>
+    <span class="c"># claude-haiku-4-5 = fastest, cheapest</span>
+    model=<span class="s">"claude-opus-4-6"</span>,
+
+    <span class="c"># Max words Claude is allowed to write back</span>
+    <span class="c"># 1 token ≈ 0.75 words — so 1024 ≈ ~750 words</span>
+    <span class="c"># REQUIRED — the API will error without it</span>
+    max_tokens=<span class="n">1024</span>,
+
+    <span class="c"># The conversation so far, as a list</span>
+    <span class="c"># role: "user" = you, "assistant" = Claude</span>
+    <span class="c"># content: what was said</span>
+    messages=[
+        {<span class="s">"role"</span>: <span class="s">"user"</span>, <span class="s">"content"</span>: <span class="s">"Hello, Claude!"</span>}
+    ]
+)</pre>
+    </div>
+
+    <h3><span class="h3-num">2</span> What comes back?</h3>
+    <p>The response isn't just plain text — it's a structured Python object. Here's how to navigate it:</p>
+
+    <div class="code-block">
+      <div class="code-bar">
+        <div class="code-dots"><div class="cdot cdot-r"></div><div class="cdot cdot-y"></div><div class="cdot cdot-g"></div></div>
+        <span class="code-title">Python — exploring the response object</span>
+      </div>
+      <pre><span class="v">response</span> = client.messages.<span class="f">create</span>(...)
+
+<span class="c"># The actual text answer:</span>
+<span class="f">print</span>(<span class="v">response</span>.content[<span class="n">0</span>].text)
+
+<span class="c"># Which model actually replied:</span>
+<span class="f">print</span>(<span class="v">response</span>.model)         <span class="c"># e.g. "claude-opus-4-6"</span>
+
+<span class="c"># Why did Claude stop? "end_turn" = finished normally</span>
+<span class="f">print</span>(<span class="v">response</span>.stop_reason)  <span class="c"># "end_turn" or "max_tokens"</span>
+
+<span class="c"># Token usage — tells you how much it cost</span>
+<span class="f">print</span>(<span class="v">response</span>.usage.input_tokens)   <span class="c"># tokens you sent</span>
+<span class="f">print</span>(<span class="v">response</span>.usage.output_tokens)  <span class="c"># tokens Claude wrote</span></pre>
+    </div>
+
+    <div class="upgrade-section">
+      <div class="upgrade-label">⬆ Even better approach</div>
+      <h3>Add error handling — don't let your app crash silently</h3>
+      <p>The course's basic example has no error handling. In a real app, the API might fail (network error, rate limit, invalid request). Wrap it like this:</p>
+      <div class="code-block">
+        <div class="code-bar">
+          <div class="code-dots"><div class="cdot cdot-r"></div><div class="cdot cdot-y"></div><div class="cdot cdot-g"></div></div>
+          <span class="code-title">Python — with proper error handling</span>
+        </div>
+        <pre><span class="k">import</span> anthropic
+
+<span class="v">client</span> = anthropic.<span class="t">Anthropic</span>()
+
+<span class="k">try</span>:
+    <span class="v">response</span> = client.messages.<span class="f">create</span>(
+        model=<span class="s">"claude-opus-4-6"</span>,
+        max_tokens=<span class="n">1024</span>,
+        messages=[{<span class="s">"role"</span>: <span class="s">"user"</span>, <span class="s">"content"</span>: <span class="s">"Explain gravity simply."</span>}]
+    )
+    <span class="f">print</span>(<span class="v">response</span>.content[<span class="n">0</span>].text)
+
+<span class="k">except</span> anthropic.<span class="t">APIConnectionError</span>:
+    <span class="f">print</span>(<span class="s">"No internet connection. Check your Wi-Fi!"</span>)
+
+<span class="k">except</span> anthropic.<span class="t">AuthenticationError</span>:
+    <span class="f">print</span>(<span class="s">"Invalid API key — check your .env file!"</span>)
+
+<span class="k">except</span> anthropic.<span class="t">RateLimitError</span>:
+    <span class="f">print</span>(<span class="s">"Sending too many requests! Slow down."</span>)</pre>
+      </div>
+      <p>This way, when something goes wrong (and it will, eventually), your app tells the user <em>what</em> went wrong instead of just crashing with a confusing traceback.</p>
+    </div>
+  </section>
+
+  <!-- ─────────────────────────────────────────────
+       LESSON 3 — MULTI-TURN
+  ──────────────────────────────────────────────── -->
+  <section class="lesson" id="multiturn">
+    <div class="lesson-header">
+      <div class="lesson-tag">Lesson 3 — Multi-Turn Conversations</div>
+      <h2>Building a Real <em>Back-and-Forth</em> Chat</h2>
+      <p class="lesson-intro">Claude has no memory between API calls. If you want it to "remember" what you said earlier, you have to send the entire chat history every single time. It sounds annoying — but it's actually a superpower.</p>
+    </div>
+
+    <div class="analogy">
+      <div class="analogy-label">Analogy — Texting without chat history</div>
+      <p>Imagine you text a friend but they delete every message the moment they read it. Each time you text them, you have to paste in the whole conversation again before asking your question. That's exactly what the API does — except your code handles the copy-pasting automatically.</p>
+    </div>
+
+    <div class="course-section">
+      <div class="course-label">📖 What the course does</div>
+      <h3>Course approach — basic message history</h3>
+      <div class="code-block">
+        <div class="code-bar">
+          <div class="code-dots"><div class="cdot cdot-r"></div><div class="cdot cdot-y"></div><div class="cdot cdot-g"></div></div>
+          <span class="code-title">Python — course chat loop</span>
+        </div>
+        <pre><span class="v">conversation_history</span> = []
+
+<span class="k">while</span> <span class="k">True</span>:
+    <span class="v">user_input</span> = <span class="f">input</span>(<span class="s">"\nYou: "</span>)
+
+    <span class="v">conversation_history</span>.<span class="f">append</span>({
+        <span class="s">"role"</span>: <span class="s">"user"</span>,
+        <span class="s">"content"</span>: <span class="v">user_input</span>
+    })
+
+    <span class="v">response</span> = client.messages.<span class="f">create</span>(
+        model=<span class="s">"claude-opus-4-6"</span>,
+        max_tokens=<span class="n">1024</span>,
+        messages=<span class="v">conversation_history</span>
+    )
+
+    <span class="v">reply</span> = <span class="v">response</span>.content[<span class="n">0</span>].text
+    <span class="f">print</span>(<span class="s">f"Claude: {<span class="v">reply</span>}"</span>)
+
+    <span class="v">conversation_history</span>.<span class="f">append</span>({
+        <span class="s">"role"</span>: <span class="s">"assistant"</span>,
+        <span class="s">"content"</span>: <span class="v">reply</span>
+    })</pre>
+      </div>
+    </div>
+
+    <h3><span class="h3-num">1</span> Why does this work?</h3>
+    <p>Each time you call the API, <code>conversation_history</code> grows by two messages (one from you, one from Claude). By the 3rd exchange, you're sending 6 messages total. Claude reads them all and can "remember" everything — because you brought the memories to it.</p>
+
+    <div class="upgrade-section">
+      <div class="upgrade-label">⬆ Even better approach</div>
+      <h3>Add a memory limit — prevent runaway token costs</h3>
+      <p>Here's a real problem: if your chat gets very long (say, 50 back-and-forths), you're sending thousands and thousands of tokens every time. This gets expensive fast. Professional apps keep only the last N messages:</p>
+      <div class="code-block">
+        <div class="code-bar">
+          <div class="code-dots"><div class="cdot cdot-r"></div><div class="cdot cdot-y"></div><div class="cdot cdot-g"></div></div>
+          <span class="code-title">Python — sliding window memory</span>
+        </div>
+        <pre><span class="v">conversation_history</span> = []
+<span class="v">MAX_HISTORY</span> = <span class="n">10</span>  <span class="c"># keep last 10 messages (5 turns)</span>
+
+<span class="k">while</span> <span class="k">True</span>:
+    <span class="v">user_input</span> = <span class="f">input</span>(<span class="s">"\nYou: "</span>)
+    <span class="k">if</span> <span class="v">user_input</span>.lower() == <span class="s">"quit"</span>:
+        <span class="k">break</span>
+
+    <span class="v">conversation_history</span>.<span class="f">append</span>({
+        <span class="s">"role"</span>: <span class="s">"user"</span>, <span class="s">"content"</span>: <span class="v">user_input</span>
+    })
+
+    <span class="c"># 🔑 Only send the last MAX_HISTORY messages</span>
+    <span class="v">window</span> = <span class="v">conversation_history</span>[-<span class="v">MAX_HISTORY</span>:]
+
+    <span class="v">response</span> = client.messages.<span class="f">create</span>(
+        model=<span class="s">"claude-opus-4-6"</span>,
+        max_tokens=<span class="n">1024</span>,
+        messages=<span class="v">window</span>
+    )
+
+    <span class="v">reply</span> = <span class="v">response</span>.content[<span class="n">0</span>].text
+    <span class="f">print</span>(<span class="s">f"Claude: {<span class="v">reply</span>}"</span>)
+
+    <span class="v">conversation_history</span>.<span class="f">append</span>({
+        <span class="s">"role"</span>: <span class="s">"assistant"</span>, <span class="s">"content"</span>: <span class="v">reply</span>
+    })</pre>
+      </div>
+      <div class="callout info">
+        <div class="callout-icon"></div>
+        <p><strong>Pro tip:</strong> Real apps like ChatGPT use a smarter version — they <em>summarize</em> old messages ("Earlier you asked about Python loops. We covered for, while, and list comprehensions.") and inject that summary at the top. This way, Claude never loses the big picture even if details are trimmed.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─────────────────────────────────────────────
+       LESSON 4 — SYSTEM PROMPTS
+  ──────────────────────────────────────────────── -->
+  <section class="lesson" id="system-prompts">
+    <div class="lesson-header">
+      <div class="lesson-tag">Lesson 4 — System Prompts</div>
+      <h2>Giving Claude a <em>Personality</em> & Rules</h2>
+      <p class="lesson-intro">The system prompt is a hidden instruction you give Claude before any conversation starts. It's the most powerful single thing you can do to control how Claude behaves — and most people don't use it well.</p>
+    </div>
+
+    <div class="analogy">
+      <div class="analogy-label">Analogy — Briefing an actor</div>
+      <p>The system prompt is like handing an actor their character brief before the play: "You play Dr. Sharma, a friendly paediatrician who explains everything in simple terms, never uses scary medical words, and always ends with a reassuring statement." From that point, every line they deliver follows those rules automatically — without you having to repeat yourself.</p>
+    </div>
+
+    <div class="course-section">
+      <div class="course-label">📖 What the course does</div>
+      <h3>Course approach — basic system prompt</h3>
+      <div class="code-block">
+        <div class="code-bar">
+          <div class="code-dots"><div class="cdot cdot-r"></div><div class="cdot cdot-y"></div><div class="cdot cdot-g"></div></div>
+          <span class="code-title">Python — system prompt (course style)</span>
+        </div>
+        <pre><span class="v">response</span> = client.messages.<span class="f">create</span>(
+    model=<span class="s">"claude-opus-4-6"</span>,
+    max_tokens=<span class="n">1024</span>,
+    system=<span class="s">"You are a helpful coding assistant specializing in Python."</span>,
+    messages=[
+        {<span class="s">"role"</span>: <span class="s">"user"</span>, <span class="s">"content"</span>: <span class="s">"How do I sort a list?"</span>}
+    ]
+)</pre>
+      </div>
+      <p>This is correct and it works! But a one-liner system prompt is like giving an actor one word: "Be helpful." You can do so much better.</p>
+    </div>
+
+    <h3><span class="h3-num">1</span> The 4 Levels of System Prompts</h3>
+    <p>Think of system prompts as having four increasingly powerful levels. The course teaches Level 1. Here's all four:</p>
+
+    <div class="levels">
+      <div class="level-item">
+        <div class="level-header">
+          <div class="level-num l1">1</div>
+          <div class="level-title">Basic Role — just a job title</div>
+          <span class="level-tag l1-tag">Beginner</span>
+        </div>
+        <div class="level-body">
+          <div class="code-block" style="margin:0;border-radius:0;border:none;">
+            <pre>system=<span class="s">"You are a helpful Python tutor."</span></pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="level-item">
+        <div class="level-header">
+          <div class="level-num l2">2</div>
+          <div class="level-title">Role + Rules — add what to do and not do</div>
+          <span class="level-tag l2-tag">Intermediate</span>
+        </div>
+        <div class="level-body">
+          <div class="code-block" style="margin:0;border-radius:0;border:none;">
+            <pre>system=<span class="s">"""You are a Python tutor for beginners.
+Rules:
+- Always explain concepts before showing code
+- Use simple English, no jargon
+- If the student seems confused, try a different analogy
+- Never write more than 30 lines of code at once"""</span></pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="level-item">
+        <div class="level-header">
+          <div class="level-num l3">3</div>
+          <div class="level-title">Role + Rules + Format + Examples</div>
+          <span class="level-tag l3-tag">Advanced</span>
+        </div>
+        <div class="level-body">
+          <div class="code-block" style="margin:0;border-radius:0;border:none;">
+            <pre>system=<span class="s">"""You are Byte, a Python tutor for 13-16 year olds.
+
+PERSONALITY: Friendly, encouraging, uses gaming analogies.
+RULES:
+- Explain the concept FIRST in one sentence
+- Then show the real-life analogy
+- Then show the code with comments
+- End with one practice challenge
+
+FORBIDDEN: Don't say "great question!", don't use jargon,
+don't write solutions to their homework.
+
+FORMAT: Use markdown. Keep answers under 200 words unless
+the student asks for more detail.
+
+EXAMPLE OF A GOOD RESPONSE:
+User: "What's a for loop?"
+You: "A for loop repeats a block of code a set number
+of times — like a video game telling you to collect
+10 coins before the level ends..."</span></pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="level-item">
+        <div class="level-header">
+          <div class="level-num l4">4</div>
+          <div class="level-title">Full Production Prompt — XML structure + safety</div>
+          <span class="level-tag l4-tag">Pro</span>
+        </div>
+        <div class="level-body">
+          <div class="code-block" style="margin:0;border-radius:0;border:none;">
+            <pre>system=<span class="s">"""&lt;role&gt;
+You are Byte, an AI Python tutor built for students
+aged 13-16 on the LearnCode platform.
+&lt;/role&gt;
+
+&lt;rules&gt;
+1. Always start with concept, then analogy, then code.
+2. Use encouraging language — mistakes are normal.
+3. Ask one check-in question after each explanation.
+4. Never provide complete homework solutions.
+5. If asked about non-Python topics, redirect kindly.
+&lt;/rules&gt;
+
+&lt;format&gt;
+- Use markdown headers and code blocks
+- Max 250 words per response
+- End with: "💡 Try this: [simple challenge]"
+&lt;/format&gt;
+
+&lt;safety&gt;
+- Do not discuss topics unrelated to Python or coding
+- If a student mentions personal problems, show empathy
+  and suggest they speak to a trusted adult
+&lt;/safety&gt;"""</span></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="upgrade-section">
+      <div class="upgrade-label">⬆ Even better approach</div>
+      <h3>Dynamic system prompts — personalize at runtime</h3>
+      <p>The real pro move is building your system prompt <em>dynamically</em> using Python f-strings. This way, every user gets a system prompt tailored specifically to them:</p>
+      <div class="code-block">
+        <div class="code-bar">
+          <div class="code-dots"><div class="cdot cdot-r"></div><div class="cdot cdot-y"></div><div class="cdot cdot-g"></div></div>
+          <span class="code-title">Python — dynamic system prompt</span>
+        </div>
+        <pre><span class="k">def</span> <span class="f">build_system_prompt</span>(student_name, skill_level, topic):
+    <span class="k">return</span> <span class="s">f"""You are Byte, a Python tutor helping {student_name}.
+
+Student profile:
+- Skill level: {skill_level}  (beginner / intermediate / advanced)
+- Current topic: {topic}
+
+Adjust your language complexity to match {skill_level}.
+Always address the student as {student_name}.
+Focus your examples on {topic} concepts."""</span>
+
+<span class="c"># Build a personalised system prompt for each user</span>
+<span class="v">system</span> = <span class="f">build_system_prompt</span>(
+    student_name=<span class="s">"Priya"</span>,
+    skill_level=<span class="s">"beginner"</span>,
+    topic=<span class="s">"for loops"</span>
+)
+
+<span class="v">response</span> = client.messages.<span class="f">create</span>(
+    model=<span class="s">"claude-opus-4-6"</span>,
+    max_tokens=<span class="n">1024</span>,
+    system=<span class="v">system</span>,  <span class="c"># personalised per user!</span>
+    messages=[...]
+)</pre>
+      </div>
+      <div class="callout info">
+        <div class="callout-icon"></div>
+        <p><strong>Why this matters:</strong> Every major AI product (Duolingo Max, Khan Academy's Khanmigo, Notion AI) uses dynamic system prompts to personalise the experience. It's the difference between a generic chatbot and an AI that feels like it really <em>knows</em> you.</p>
+      </div>
+    </div>
+
+    <div class="pull-quote">
+      The system prompt is your app's DNA — it shapes everything Claude says without the user ever seeing it.
+    </div>
+  </section>
+
+  <!-- ─────────────────────────────────────────────
+       LESSON 5 — TEMPERATURE
+  ──────────────────────────────────────────────── -->
+  <section class="lesson" id="temperature">
+    <div class="lesson-header">
+      <div class="lesson-tag">Lesson 5 — Temperature</div>
+      <h2>Controlling How <em>Creative</em> Claude Gets</h2>
+      <p class="lesson-intro">Temperature is a number between 0 and 1 that controls how "adventurous" Claude's word choices are. It's the single most misunderstood setting in the API.</p>
+    </div>
+
+    <div class="analogy">
+      <div class="analogy-label">Analogy — Autocomplete on your phone keyboard</div>
+      <p>When you type "I want to eat", your phone suggests words. Low temperature = always picks the most likely word (boring but accurate). High temperature = sometimes picks surprising words (creative but occasionally weird). Claude's temperature works exactly the same way.</p>
+    </div>
+
+    <div class="temp-scale">
+      <div class="temp-col">
+        <div class="temp-emoji">🧊</div>
+        <div class="temp-val">0.0</div>
+        <div class="temp-label">Ice Cold</div>
+        <div class="temp-desc">Same answer every single time. Fully predictable. Zero randomness.</div>
+        <div class="temp-use">Code / Math / Facts</div>
+      </div>
+      <div class="temp-col">
+        <div class="temp-emoji">🌡️</div>
+        <div class="temp-val">0.3</div>
+        <div class="temp-label">Cool</div>
+        <div class="temp-desc">Slight variation. Still reliable but with tiny vocabulary differences.</div>
+        <div class="temp-use">Summaries / Q&A</div>
+      </div>
+      <div class="temp-col">
+        <div class="temp-emoji">☀️</div>
+        <div class="temp-val">0.7</div>
+        <div class="temp-label">Warm</div>
+        <div class="temp-desc">Noticeable variation. Responses feel natural, human, engaging.</div>
+        <div class="temp-use">Chatbots / Tutors</div>
+      </div>
+      <div class="temp-col">
+        <div class="temp-emoji">🔥</div>
+        <div class="temp-val">1.0</div>
+        <div class="temp-label">Blazing</div>
+        <div class="temp-desc">Maximum creativity. Wild word choices. Sometimes brilliant, sometimes odd.</div>
+        <div class="temp-use">Stories / Poetry</div>
+      </div>
+    </div>
+
+    <div class="course-section">
+      <div class="course-label">📖 What the course does</div>
+      <h3>Course approach — setting temperature</h3>
+      <div class="code-block">
+        <div class="code-bar">
+          <div class="code-dots"><div class="cdot cdot-r"></div><div class="cdot cdot-y"></div><div class="cdot cdot-g"></div></div>
+          <span class="code-title">Python — setting temperature</span>
+        </div>
+        <pre><span class="v">response</span> = client.messages.<span class="f">create</span>(
+    model=<span class="s">"claude-opus-4-6"</span>,
+    max_tokens=<span class="n">1024</span>,
+    temperature=<span class="n">0.7</span>,  <span class="c"># the course uses this for the exercise</span>
+    messages=[...]
+)</pre>
+      </div>
+    </div>
+
+    <div class="upgrade-section">
+      <div class="upgrade-label">⬆ Even better approach</div>
+      <h3>Make temperature task-aware — switch it based on what you need</h3>
+      <p>A real app uses different temperatures for different tasks automatically. Here's a helper that does this for you:</p>
+      <div class="code-block">
+        <div class="code-bar">
+          <div class="code-dots"><div class="cdot cdot-r"></div><div class="cdot cdot-y"></div><div class="cdot cdot-g"></div></div>
+          <span class="code-title">Python — smart temperature selector</span>
+        </div>
+        <pre><span class="k">def</span> <span class="f">get_temperature</span>(task_type: str) -> float:
+    <span class="s">"""Pick the right temperature for the job."""</span>
+    <span class="v">temperature_map</span> = {
+        <span class="s">"code"</span>:       <span class="n">0.0</span>,  <span class="c"># always correct, never creative</span>
+        <span class="s">"math"</span>:       <span class="n">0.0</span>,  <span class="c"># one right answer</span>
+        <span class="s">"factcheck"</span>:  <span class="n">0.1</span>,  <span class="c"># almost no randomness</span>
+        <span class="s">"summary"</span>:    <span class="n">0.3</span>,  <span class="c"># slight variation okay</span>
+        <span class="s">"chat"</span>:       <span class="n">0.7</span>,  <span class="c"># friendly, natural</span>
+        <span class="s">"brainstorm"</span>: <span class="n">0.9</span>,  <span class="c"># give me wild ideas</span>
+        <span class="s">"story"</span>:      <span class="n">1.0</span>,  <span class="c"># maximum creativity</span>
+    }
+    <span class="k">return</span> <span class="v">temperature_map</span>.<span class="f">get</span>(task_type, <span class="n">0.7</span>)
+
+<span class="c"># Usage examples:</span>
+<span class="v">task</span> = <span class="s">"code"</span>   <span class="c"># user wants Python help</span>
+<span class="v">response</span> = client.messages.<span class="f">create</span>(
+    model=<span class="s">"claude-opus-4-6"</span>,
+    max_tokens=<span class="n">1024</span>,
+    temperature=<span class="f">get_temperature</span>(<span class="v">task</span>),  <span class="c"># 0.0 automatically</span>
+    messages=[...]
+)</pre>
+      </div>
+      <div class="callout info">
+        <div class="callout-icon"></div>
+        <p><strong>Important note:</strong> When you use <strong>Extended Thinking</strong> (Claude's step-by-step reasoning mode), temperature is fixed at 1.0 automatically — you can't change it. The thinking mode handles its own quality control internally.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─────────────────────────────────────────────
+       LESSON 6 — STREAMING
+  ──────────────────────────────────────────────── -->
+  <section class="lesson" id="streaming">
+    <div class="lesson-header">
+      <div class="lesson-tag">Lesson 6 — Response Streaming</div>
+      <h2>Words Appearing <em>as Claude Writes</em> Them</h2>
+      <p class="lesson-intro">Without streaming, you stare at a blank screen until Claude finishes its entire response, then — boom — everything appears at once. Streaming shows you each word as it's generated. This completely changes how an app feels.</p>
+    </div>
+
+    <div class="stream-diagram">
+      <div class="stream-step">
+        <div class="stream-step-icon">👤</div>
+        <div class="stream-step-label">You ask</div>
+        <div class="stream-step-val">"Explain loops"</div>
+      </div>
+      <div class="stream-arrow">→</div>
+      <div class="stream-step">
+        <div class="stream-step-icon">🌐</div>
+        <div class="stream-step-label">API sends</div>
+        <div class="stream-step-val">Stream starts</div>
+      </div>
+      <div class="stream-arrow">→</div>
+      <div class="stream-step">
+        <div class="stream-step-icon">✍️</div>
+        <div class="stream-step-label">You receive</div>
+        <div class="stream-step-val">Word by word</div>
+      </div>
+      <div class="stream-arrow">→</div>
+      <div class="stream-step">
+        <div class="stream-step-icon">✅</div>
+        <div class="stream-step-label">Done when</div>
+        <div class="stream-step-val">end_turn fires</div>
+      </div>
+    </div>
+
+    <div class="course-section">
+      <div class="course-label">📖 What the course does</div>
+      <h3>Course approach — basic streaming</h3>
+      <div class="code-block">
+        <div class="code-bar">
+          <div class="code-dots"><div class="cdot cdot-r"></div><div class="cdot cdot-y"></div><div class="cdot cdot-g"></div></div>
+          <span class="code-title">Python — streaming (course style)</span>
+        </div>
+        <pre><span class="k">with</span> client.messages.<span class="f">stream</span>(
+    model=<span class="s">"claude-opus-4-6"</span>,
+    max_tokens=<span class="n">1024</span>,
+    messages=[{<span class="s">"role"</span>: <span class="s">"user"</span>, <span class="s">"content"</span>: <span class="s">"Write a short poem."</span>}]
+) <span class="k">as</span> stream:
+    <span class="k">for</span> text <span class="k">in</span> stream.text_stream:
+        <span class="f">print</span>(text, end=<span class="s">""</span>, flush=<span class="k">True</span>)</pre>
+      </div>
+    </div>
+
+    <div class="upgrade-section">
+      <div class="upgrade-label">⬆ Even better approach</div>
+      <h3>Capture streamed text AND get final metadata</h3>
+      <p>The course shows streaming to the terminal. In a real app (like a web server), you need to both stream text to the user AND capture it for logging, saving to a database, or adding to chat history. Here's how:</p>
+      <div class="code-block">
+        <div class="code-bar">
+          <div class="code-dots"><div class="cdot cdot-r"></div><div class="cdot cdot-y"></div><div class="cdot cdot-g"></div></div>
+          <span class="code-title">Python — stream + capture full response</span>
+        </div>
+        <pre><span class="v">full_text</span> = <span class="s">""</span>
+
+<span class="k">with</span> client.messages.<span class="f">stream</span>(
+    model=<span class="s">"claude-opus-4-6"</span>,
+    max_tokens=<span class="n">1024</span>,
+    messages=[{<span class="s">"role"</span>: <span class="s">"user"</span>, <span class="s">"content"</span>: <span class="s">"Explain photosynthesis."</span>}]
+) <span class="k">as</span> stream:
+
+    <span class="c"># Stream to user word by word</span>
+    <span class="k">for</span> text <span class="k">in</span> stream.text_stream:
+        <span class="f">print</span>(text, end=<span class="s">""</span>, flush=<span class="k">True</span>)
+        <span class="v">full_text</span> += text  <span class="c"># capture it too</span>
+
+    <span class="c"># After streaming ends, get full metadata</span>
+    <span class="v">final</span> = stream.<span class="f">get_final_message</span>()
+
+<span class="f">print</span>(<span class="s">f"\n\n--- Done ---"</span>)
+<span class="f">print</span>(<span class="s">f"Tokens used: {<span class="v">final</span>.usage.output_tokens}"</span>)
+<span class="f">print</span>(<span class="s">f"Stop reason: {<span class="v">final</span>.stop_reason}"</span>)
+
+<span class="c"># Now save full_text to your database or chat history</span>
+<span class="v">chat_history</span>.<span class="f">append</span>({<span class="s">"role"</span>: <span class="s">"assistant"</span>, <span class="s">"content"</span>: <span class="v">full_text</span>})</pre>
+      </div>
+      <div class="callout tip">
+        <div class="callout-icon"></div>
+        <p><strong>Web app tip:</strong> In a Flask or FastAPI web server, you'd yield each chunk from a route handler using <code>Server-Sent Events (SSE)</code>. This is exactly how Claude.ai's chat interface works — it's streaming from an API route to your browser in real time.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─────────────────────────────────────────────
+       LESSON 7 — STRUCTURED DATA
+  ──────────────────────────────────────────────── -->
+  <section class="lesson" id="structured">
+    <div class="lesson-header">
+      <div class="lesson-tag">Lesson 7 — Structured Data</div>
+      <h2>Getting Clean <em>JSON</em> Instead of Messy Text</h2>
+      <p class="lesson-intro">Usually Claude writes a nice paragraph. But what if your app needs to store Claude's answer in a database? Or pass it to another function? You need machine-readable JSON, not human-readable English.</p>
+    </div>
+
+    <div class="analogy">
+      <div class="analogy-label">Analogy — Order form vs conversation</div>
+      <p>Imagine asking a waiter "what's good here?" and getting a five-minute description. That's a paragraph response — great for humans. Now imagine getting a form back: <code>{dish: "Dosa", price: 80, veg: true}</code>. That's structured data — your app can read it instantly. Same information, completely different format.</p>
+    </div>
+
+    <p>Here's a real example showing why this matters. Ask Claude "Who are the planets?" and compare:</p>
+
+    <div class="json-compare">
+      <div class="json-box bad">
+        <div class="json-header">❌ Plain text response (hard to use in code)</div>
+        <div class="code-block" style="margin:0;border-radius:0;border:none;">
+          <pre style="font-size:12px;">The planets are Mercury, Venus,
+Earth, Mars, Jupiter, Saturn,
+Uranus, and Neptune. Mercury is
+the smallest and closest to the
+Sun, while Neptune is the
+farthest away...</pre>
+        </div>
+      </div>
+      <div class="json-box good">
+        <div class="json-header">✅ JSON response (easy to use in code)</div>
+        <div class="code-block" style="margin:0;border-radius:0;border:none;">
+          <pre style="font-size:12px;">[
+  {<span class="s">"name"</span>: <span class="s">"Mercury"</span>,
+   <span class="s">"position"</span>: <span class="n">1</span>,
+   <span class="s">"has_moons"</span>: <span class="k">false</span>},
+  {<span class="s">"name"</span>: <span class="s">"Earth"</span>,
+   <span class="s">"position"</span>: <span class="n">3</span>,
+   <span class="s">"has_moons"</span>: <span class="k">true</span>},
+  ...
+]</pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="course-section">
+      <div class="course-label">📖 What the course does</div>
+      <h3>Course approach — ask Claude to respond in JSON</h3>
+      <div class="code-block">
+        <div class="code-bar">
+          <div class="code-dots"><div class="cdot cdot-r"></div><div class="cdot cdot-y"></div><div class="cdot cdot-g"></div></div>
+          <span class="code-title">Python — structured data (course style)</span>
+        </div>
+        <pre><span class="k">import</span> json
+
+<span class="v">response</span> = client.messages.<span class="f">create</span>(
+    model=<span class="s">"claude-opus-4-6"</span>,
+    max_tokens=<span class="n">1024</span>,
+    system=<span class="s">"Always respond in valid JSON only. No extra text."</span>,
+    messages=[{
+        <span class="s">"role"</span>: <span class="s">"user"</span>,
+        <span class="s">"content"</span>: <span class="s">"Give me 3 Python beginner exercises as JSON."</span>
+    }]
+)
+
+<span class="v">data</span> = json.<span class="f">loads</span>(<span class="v">response</span>.content[<span class="n">0</span>].text)
+<span class="f">print</span>(<span class="v">data</span>)</pre>
+      </div>
+    </div>
+
+    <div class="upgrade-section">
+      <div class="upgrade-label">⬆ Even better approach (2 levels)</div>
+      <h3>Level 1 — Give Claude a schema to follow</h3>
+      <p>Just saying "respond in JSON" works most of the time. But Claude might invent its own fields! Give it an exact schema so the output matches what your app expects:</p>
+      <div class="code-block">
+        <div class="code-bar">
+          <div class="code-dots"><div class="cdot cdot-r"></div><div class="cdot cdot-y"></div><div class="cdot cdot-g"></div></div>
+          <span class="code-title">Python — schema-guided JSON output</span>
+        </div>
+        <pre><span class="v">schema</span> = <span class="s">"""{
+  "exercises": [
+    {
+      "title": "string — name of the exercise",
+      "difficulty": "easy | medium | hard",
+      "topic": "string — e.g. loops, functions, lists",
+      "description": "string — what the student should build",
+      "starter_code": "string — Python code to start with"
+    }
+  ]
+}"""</span>
+
+<span class="v">response</span> = client.messages.<span class="f">create</span>(
+    model=<span class="s">"claude-opus-4-6"</span>,
+    max_tokens=<span class="n">1024</span>,
+    system=<span class="s">f"Respond ONLY in this exact JSON format:\n{<span class="v">schema</span>}"</span>,
+    messages=[{
+        <span class="s">"role"</span>: <span class="s">"user"</span>,
+        <span class="s">"content"</span>: <span class="s">"Give me 3 beginner Python exercises."</span>
+    }]
+)
+
+<span class="k">import</span> json
+<span class="v">data</span> = json.<span class="f">loads</span>(<span class="v">response</span>.content[<span class="n">0</span>].text)
+<span class="k">for</span> <span class="v">ex</span> <span class="k">in</span> <span class="v">data</span>[<span class="s">"exercises"</span>]:
+    <span class="f">print</span>(<span class="s">f"📝 {<span class="v">ex</span>[<span class="s">'title'</span>]} — {<span class="v">ex</span>[<span class="s">'difficulty'</span>]}"</span>)</pre>
+      </div>
+
+      <h3>Level 2 — Use Pydantic for bulletproof validation</h3>
+      <p>Real production apps use <strong>Pydantic</strong> (a Python library) to <em>validate</em> that Claude's JSON matches the exact structure you need. If Claude accidentally writes the wrong field type, Pydantic catches it immediately:</p>
+      <div class="code-block">
+        <div class="code-bar">
+          <div class="code-dots"><div class="cdot cdot-r"></div><div class="cdot cdot-y"></div><div class="cdot cdot-g"></div></div>
+          <span class="code-title">Python — Pydantic validation (production level)</span>
+        </div>
+        <pre><span class="k">from</span> pydantic <span class="k">import</span> BaseModel
+<span class="k">from</span> typing <span class="k">import</span> List, Literal
+<span class="k">import</span> json
+
+<span class="c"># Define the EXACT shape we expect</span>
+<span class="k">class</span> <span class="t">Exercise</span>(BaseModel):
+    title: str
+    difficulty: Literal[<span class="s">"easy"</span>, <span class="s">"medium"</span>, <span class="s">"hard"</span>]
+    topic: str
+    description: str
+    starter_code: str
+
+<span class="k">class</span> <span class="t">ExerciseList</span>(BaseModel):
+    exercises: List[<span class="t">Exercise</span>]
+
+<span class="c"># Get response from Claude...</span>
+<span class="v">raw_json</span> = <span class="v">response</span>.content[<span class="n">0</span>].text
+
+<span class="c"># Validate it — will throw a clear error if Claude went off-script</span>
+<span class="v">parsed</span> = <span class="t">ExerciseList</span>.<span class="f">model_validate_json</span>(<span class="v">raw_json</span>)
+
+<span class="k">for</span> <span class="v">ex</span> <span class="k">in</span> <span class="v">parsed</span>.exercises:
+    <span class="f">print</span>(<span class="s">f"✅ {<span class="v">ex</span>.title} [{<span class="v">ex</span>.difficulty}] — {<span class="v">ex</span>.topic}"</span>)</pre>
+      </div>
+
+      <div class="callout tip">
+        <div class="callout-icon"></div>
+        <p><strong>Industry standard:</strong> The <strong>instructor</strong> Python library wraps this pattern into one elegant call: <code>client.chat.completions.create(response_model=ExerciseList, ...)</code>. It handles the prompt injection, parsing, and retries automatically. Used by thousands of production AI apps.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─────────────────────────────────────────────
+       RECAP
+  ──────────────────────────────────────────────── -->
+  <section class="lesson" id="recap">
+    <div class="lesson-header">
+      <div class="lesson-tag">Chapter Recap</div>
+      <h2>Everything You Just <em>Learned</em></h2>
+    </div>
+
+    <div class="recap">
+      <div class="recap-title">🧠 Chapter 1 — Complete Cheat Sheet</div>
+      <div class="recap-grid">
+        <div class="recap-item">
+          <div class="recap-item-icon">🔑</div>
+          <div class="recap-item-title">API Key</div>
+          <div class="recap-item-desc">Store in .env + .gitignore. Never in code. Never on GitHub.</div>
+        </div>
+        <div class="recap-item">
+          <div class="recap-item-icon">📤</div>
+          <div class="recap-item-title">Basic Request</div>
+          <div class="recap-item-desc">messages.create() with model, max_tokens, messages list.</div>
+        </div>
+        <div class="recap-item">
+          <div class="recap-item-icon">🧵</div>
+          <div class="recap-item-title">Multi-Turn</div>
+          <div class="recap-item-desc">Send full history each time. Add sliding window to control costs.</div>
+        </div>
+        <div class="recap-item">
+          <div class="recap-item-icon">🎭</div>
+          <div class="recap-item-title">System Prompt</div>
+          <div class="recap-item-desc">4 levels: role → rules → examples → XML structure. Make it dynamic!</div>
+        </div>
+        <div class="recap-item">
+          <div class="recap-item-icon">🌡️</div>
+          <div class="recap-item-title">Temperature</div>
+          <div class="recap-item-desc">0.0 for code/facts. 0.7 for chat. 1.0 for stories. Match to task.</div>
+        </div>
+        <div class="recap-item">
+          <div class="recap-item-icon">🌊</div>
+          <div class="recap-item-title">Streaming</div>
+          <div class="recap-item-desc">Use .stream() + text_stream. Capture full_text for saving.</div>
+        </div>
+        <div class="recap-item">
+          <div class="recap-item-icon">📦</div>
+          <div class="recap-item-title">Structured Data</div>
+          <div class="recap-item-desc">System prompt "JSON only" + give schema + validate with Pydantic.</div>
+        </div>
+        <div class="recap-item">
+          <div class="recap-item-icon">🛡️</div>
+          <div class="recap-item-title">Error Handling</div>
+          <div class="recap-item-desc">Wrap in try/except. Handle APIConnectionError, AuthError, RateLimit.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout tip" style="margin-top:32px;">
+      <div class="callout-icon"></div>
+      <p><strong>Your challenge:</strong> Build a Python script that creates a personalised study helper. It should have a system prompt with your name and current school subject, use temperature 0.3 for factual help and 0.8 for creative analogies, keep the last 6 messages as history, and respond in JSON when you ask for a quiz question. You now have every skill you need to do this!</p>
+    </div>
+  </section>
+
+</main>
+
+<!-- ═══ FOOTER NAV ═══ -->
+<div class="nav-footer">
+  <a class="nav-btn" href="chapter-1-accessing-claude-api.html">← Back to Chapter 1</a>
+  <div style="font-family:var(--font-code);font-size:12px;color:var(--ink-light);text-align:center;">
+    Chapter 1 of 9 · Building with the Claude API
+  </div>
+  <a class="nav-btn primary" href="#">Chapter 2: Prompt Evaluation →</a>
+</div>
+
+<script>
+  // Reading progress
+  window.addEventListener('scroll', () => {
+    const el = document.documentElement;
+    const pct = (el.scrollTop / (el.scrollHeight - el.clientHeight)) * 100;
+    document.getElementById('progress').style.width = pct + '%';
+  });
+
+  // TOC active link highlight
+  const sections = document.querySelectorAll('section[id]');
+  const links = document.querySelectorAll('.toc-link');
+
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        links.forEach(l => l.classList.remove('active'));
+        const active = document.querySelector(`.toc-link[href="#${entry.target.id}"]`);
+        if (active) active.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+
+  sections.forEach(s => observer.observe(s));
+</script>
+</body>
+</html>
