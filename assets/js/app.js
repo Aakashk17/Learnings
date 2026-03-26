@@ -1,4 +1,12 @@
-const siteBaseUrl = new URL('./', window.location.href);
+const siteBaseUrl = (() => {
+  const pathname = window.location.pathname;
+  const isFilePath = /\/[^/]+\.[^/]+$/.test(pathname);
+  const normalizedPath = isFilePath
+    ? pathname.replace(/[^/]+$/, '')
+    : pathname.endsWith('/') ? pathname : `${pathname}/`;
+
+  return new URL(normalizedPath || '/', window.location.origin);
+})();
 const manifestUrl = new URL('content/manifest.json', siteBaseUrl).toString();
 const summaryCards = document.getElementById('summaryCards');
 const statusText = document.getElementById("statusText");
