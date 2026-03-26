@@ -1,5 +1,6 @@
-﻿const manifestUrl = "content/manifest.json";
-const summaryCards = document.getElementById("summaryCards");
+const siteBaseUrl = new URL('./', window.location.href);
+const manifestUrl = new URL('content/manifest.json', siteBaseUrl).toString();
+const summaryCards = document.getElementById('summaryCards');
 const statusText = document.getElementById("statusText");
 const searchInput = document.getElementById("searchInput");
 const breadcrumbs = document.getElementById("breadcrumbs");
@@ -12,6 +13,10 @@ const closeViewer = document.getElementById("closeViewer");
 
 let libraryRoot = null;
 let currentPath = [];
+
+function resolveLocalUrl(path) {
+  return new URL(path, siteBaseUrl).toString();
+}
 
 function prettifySegment(value) {
   return value
@@ -101,7 +106,7 @@ function hideViewer() {
 function showLocalPreview(entry) {
   viewerTitle.textContent = entry.title;
   viewerMeta.textContent = entry.displayPath || entry.path;
-  viewerFrame.src = entry.path;
+  viewerFrame.src = resolveLocalUrl(entry.path);
   viewerPanel.hidden = false;
   viewerPanel.scrollIntoView({ behavior: "smooth", block: "start" });
 }
