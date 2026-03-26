@@ -1,10 +1,27 @@
 ﻿{
-    "generatedAt":  "2026-03-26T03:16:47.6658168Z",
-    "itemCount":  3,
+    "generatedAt":  "2026-03-26T03:28:50.0066262Z",
+    "itemCount":  4,
     "items":  [
+                  {
+                      "title":  "Claude Artifact",
+                      "path":  "https://claude.ai/public/artifacts/c3ce2a40-84df-475e-b55d-6eb99017ba26",
+                      "displayPath":  "Hosted externally",
+                      "kind":  "external",
+                      "target":  "_blank",
+                      "sourceFile":  "content/ai/claude/courses/claude-artifact.link.json",
+                      "segments":  [
+                                       "ai",
+                                       "claude",
+                                       "courses"
+                                   ],
+                      "updatedAt":  "2026-03-26T03:28:25.9777402Z"
+                  },
                   {
                       "title":  "Claude Course",
                       "path":  "content/ai/claude/courses/course.html",
+                      "displayPath":  "content/ai/claude/courses/course.html",
+                      "kind":  "file",
+                      "target":  "_self",
                       "segments":  [
                                        "ai",
                                        "claude",
@@ -15,6 +32,9 @@
                   {
                       "title":  "Back-End Start Here",
                       "path":  "content/back-end/start-here.html",
+                      "displayPath":  "content/back-end/start-here.html",
+                      "kind":  "file",
+                      "target":  "_self",
                       "segments":  [
                                        "back-end"
                                    ],
@@ -23,6 +43,9 @@
                   {
                       "title":  "Front-End Start Here",
                       "path":  "content/front-end/start-here.html",
+                      "displayPath":  "content/front-end/start-here.html",
+                      "kind":  "file",
+                      "target":  "_self",
                       "segments":  [
                                        "front-end"
                                    ],

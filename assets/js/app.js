@@ -71,12 +71,13 @@ function renderSummary(tree) {
   }
 
   tree.forEach((node) => {
+    const totalCount = countEntries(node);
     const card = document.createElement("article");
     card.className = "summary-card";
     card.innerHTML = `
       <span class="eyebrow">${node.name}</span>
-      <strong class="summary-card__count">${countEntries(node)}</strong>
-      <span>${countEntries(node) === 1 ? "learning file" : "learning files"}</span>
+      <strong class="summary-card__count">${totalCount}</strong>
+      <span>${totalCount === 1 ? "library item" : "library items"}</span>
     `;
     summaryCards.appendChild(card);
   });
@@ -88,7 +89,7 @@ function renderTree(nodes, container) {
   if (!nodes.length) {
     container.innerHTML = `
       <div class="empty-state">
-        No learning files matched this search. Add HTML files under <code>content/</code> or change the filter.
+        No learning items matched this search. Add HTML files or <code>.link.json</code> files under <code>content/</code>.
       </div>
     `;
     return;
@@ -106,7 +107,7 @@ function renderTree(nodes, container) {
 
     name.textContent = node.name;
     const totalCount = countEntries(node);
-    meta.textContent = `${totalCount} file${totalCount === 1 ? "" : "s"}`;
+    meta.textContent = `${totalCount} item${totalCount === 1 ? "" : "s"}`;
 
     toggle.addEventListener("click", () => {
       const collapsed = nodeEl.classList.toggle("node--collapsed");
@@ -120,8 +121,10 @@ function renderTree(nodes, container) {
       const path = leafFragment.querySelector(".leaf__path");
 
       leaf.href = entry.path;
+      leaf.target = entry.target || "_self";
+      leaf.rel = entry.target === "_blank" ? "noopener noreferrer" : "noopener";
       title.textContent = entry.title;
-      path.textContent = entry.path;
+      path.textContent = entry.displayPath || entry.path;
       children.appendChild(leafFragment);
     });
 
@@ -129,6 +132,7 @@ function renderTree(nodes, container) {
       renderTree(node.children, childNodeContainer);
       children.appendChild(childNodeContainer);
     }
+
     container.appendChild(fragment);
   });
 }
@@ -140,7 +144,7 @@ function filterTree(nodes, query) {
 
   return nodes.reduce((result, node) => {
     const matchingEntries = node.entries.filter((entry) => {
-      const searchText = `${entry.title} ${entry.path} ${entry.segments.join(" ")}`.toLowerCase();
+      const searchText = `${entry.title} ${entry.path} ${entry.displayPath || ""} ${entry.segments.join(" ")}`.toLowerCase();
       return searchText.includes(query);
     });
 
@@ -166,7 +170,7 @@ function updateView() {
   renderTree(filtered, treeRoot);
   statusText.textContent = query
     ? `Showing ${filtered.length} top-level matches for "${searchInput.value.trim()}".`
-    : "Browse your learning files by topic and folder.";
+    : "Browse your learning files and external resources by topic and folder.";
 }
 
 async function loadManifest() {
@@ -179,11 +183,11 @@ async function loadManifest() {
 
     const manifest = await response.json();
     fullTree = buildTree(manifest.items || []);
-    const totalFiles = (manifest.items || []).length;
+    const totalItems = (manifest.items || []).length;
 
-    statusText.textContent = totalFiles
-      ? `${totalFiles} learning file${totalFiles === 1 ? "" : "s"} indexed.`
-      : "No HTML learning files found yet.";
+    statusText.textContent = totalItems
+      ? `${totalItems} library item${totalItems === 1 ? "" : "s"} indexed.`
+      : "No learning items found yet.";
 
     renderSummary(fullTree);
     renderTree(fullTree, treeRoot);
@@ -200,5 +204,3 @@ async function loadManifest() {
 
 searchInput.addEventListener("input", updateView);
 loadManifest();
-
-
