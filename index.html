@@ -1,0 +1,86 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Learnings Library</title>
+  <meta name="description" content="A single place to organize and browse personal learning notes, courses, and references.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body>
+  <div class="page-shell">
+    <header class="hero">
+      <div class="hero__content">
+        <p class="eyebrow">Personal Knowledge Hub</p>
+        <h1>All your learnings in one place.</h1>
+        <p class="hero__intro">
+          Drop HTML files into folders like <code>content/ai/claude/courses/course.html</code> and this homepage will
+          surface them automatically after the manifest is generated.
+        </p>
+        <div class="hero__actions">
+          <a class="button button--primary" href="#library">Browse library</a>
+          <a class="button button--secondary" href="templates/learning-page-template.html">View page template</a>
+        </div>
+      </div>
+      <div class="hero__panel">
+        <p class="panel__title">Suggested structure</p>
+        <pre><code>content/
+  front-end/
+  back-end/
+  ai/
+    claude/
+      courses/
+        course.html</code></pre>
+      </div>
+    </header>
+
+    <main id="library" class="library">
+      <section class="library__header">
+        <div>
+          <p class="eyebrow">Your Library</p>
+          <h2>Topics and notes</h2>
+        </div>
+        <div class="library__controls">
+          <label class="search">
+            <span class="search__label">Search</span>
+            <input id="searchInput" type="search" placeholder="Search topics or file names">
+          </label>
+        </div>
+      </section>
+
+      <section id="summaryCards" class="summary-grid" aria-label="Learning categories"></section>
+
+      <section class="tree-panel">
+        <div class="tree-panel__header">
+          <h3>Learning tree</h3>
+          <p id="statusText">Loading your library...</p>
+        </div>
+        <div id="treeRoot" class="tree-root"></div>
+      </section>
+    </main>
+  </div>
+
+  <template id="nodeTemplate">
+    <article class="node">
+      <button class="node__toggle" type="button" aria-expanded="true">
+        <span class="node__name"></span>
+        <span class="node__meta"></span>
+      </button>
+      <div class="node__children"></div>
+    </article>
+  </template>
+
+  <template id="leafTemplate">
+    <a class="leaf" target="_self" rel="noopener">
+      <span class="leaf__title"></span>
+      <span class="leaf__path"></span>
+    </a>
+  </template>
+
+  <script src="assets/js/app.js" defer></script>
+</body>
+</html>
+

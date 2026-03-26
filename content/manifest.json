@@ -1,0 +1,32 @@
+﻿{
+    "generatedAt":  "2026-03-26T03:16:47.6658168Z",
+    "itemCount":  3,
+    "items":  [
+                  {
+                      "title":  "Claude Course",
+                      "path":  "content/ai/claude/courses/course.html",
+                      "segments":  [
+                                       "ai",
+                                       "claude",
+                                       "courses"
+                                   ],
+                      "updatedAt":  "2026-03-26T03:13:44.3634576Z"
+                  },
+                  {
+                      "title":  "Back-End Start Here",
+                      "path":  "content/back-end/start-here.html",
+                      "segments":  [
+                                       "back-end"
+                                   ],
+                      "updatedAt":  "2026-03-26T03:13:44.3604564Z"
+                  },
+                  {
+                      "title":  "Front-End Start Here",
+                      "path":  "content/front-end/start-here.html",
+                      "segments":  [
+                                       "front-end"
+                                   ],
+                      "updatedAt":  "2026-03-26T03:13:44.3574429Z"
+                  }
+              ]
+}
