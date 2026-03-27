@@ -1,29 +1,37 @@
-const siteBaseUrl = (() => {
+﻿const siteBaseUrl = (() => {
   const pathname = window.location.pathname;
   const isFilePath = /\/[^/]+\.[^/]+$/.test(pathname);
   const normalizedPath = isFilePath
-    ? pathname.replace(/[^/]+$/, '')
-    : pathname.endsWith('/') ? pathname : `${pathname}/`;
+    ? pathname.replace(/[^/]+$/, "")
+    : pathname.endsWith("/") ? pathname : `${pathname}/`;
 
-  return new URL(normalizedPath || '/', window.location.origin);
+  return new URL(normalizedPath || "/", window.location.origin);
 })();
-const manifestUrl = new URL('content/manifest.json', siteBaseUrl).toString();
-const summaryCards = document.getElementById('summaryCards');
+
+const manifestUrl = new URL("content/manifest.json", siteBaseUrl).toString();
+const summaryCards = document.getElementById("summaryCards");
 const statusText = document.getElementById("statusText");
 const searchInput = document.getElementById("searchInput");
 const breadcrumbs = document.getElementById("breadcrumbs");
 const browserGrid = document.getElementById("browserGrid");
-const viewerPanel = document.getElementById("viewerPanel");
+const viewerModal = document.getElementById("viewerModal");
+const viewerKind = document.getElementById("viewerKind");
 const viewerTitle = document.getElementById("viewerTitle");
 const viewerMeta = document.getElementById("viewerMeta");
 const viewerFrame = document.getElementById("viewerFrame");
+const openViewerLink = document.getElementById("openViewerLink");
 const closeViewer = document.getElementById("closeViewer");
+const viewerBackdrop = document.querySelector("[data-close-viewer]");
 
 let libraryRoot = null;
 let currentPath = [];
 
 function resolveLocalUrl(path) {
   return new URL(path, siteBaseUrl).toString();
+}
+
+function resolveEntryUrl(entry) {
+  return entry.kind === "external" ? entry.path : resolveLocalUrl(entry.path);
 }
 
 function prettifySegment(value) {
@@ -108,15 +116,21 @@ function navigateTo(pathSegments) {
 
 function hideViewer() {
   viewerFrame.src = "about:blank";
-  viewerPanel.hidden = true;
+  openViewerLink.removeAttribute("href");
+  viewerModal.hidden = true;
+  document.body.classList.remove("modal-open");
 }
 
-function showLocalPreview(entry) {
+function showViewer(entry) {
+  const resolvedUrl = resolveEntryUrl(entry);
+
+  viewerKind.textContent = entry.kind === "external" ? "External Link" : "Local HTML";
   viewerTitle.textContent = entry.title;
   viewerMeta.textContent = entry.displayPath || entry.path;
-  viewerFrame.src = resolveLocalUrl(entry.path);
-  viewerPanel.hidden = false;
-  viewerPanel.scrollIntoView({ behavior: "smooth", block: "start" });
+  viewerFrame.src = resolvedUrl;
+  openViewerLink.href = resolvedUrl;
+  viewerModal.hidden = false;
+  document.body.classList.add("modal-open");
 }
 
 function renderSummary() {
@@ -204,19 +218,8 @@ function createFolderCard(node, isBackCard = false) {
 }
 
 function createEntryCard(entry) {
-  const element = entry.kind === "external"
-    ? document.createElement("a")
-    : document.createElement("button");
-
-  if (entry.kind === "external") {
-    element.href = entry.path;
-    element.target = "_blank";
-    element.rel = "noopener noreferrer";
-  } else {
-    element.type = "button";
-    element.addEventListener("click", () => showLocalPreview(entry));
-  }
-
+  const element = document.createElement("button");
+  element.type = "button";
   element.className = `browser-card item-card item-card--${entry.kind}`;
   element.innerHTML = `
     <span class="browser-card__eyebrow">${entry.kind === "external" ? "External Link" : "Local HTML"}</span>
@@ -224,6 +227,7 @@ function createEntryCard(entry) {
     <span class="browser-card__meta">${entry.displayPath || entry.path}</span>
   `;
 
+  element.addEventListener("click", () => showViewer(entry));
   return element;
 }
 
@@ -294,5 +298,11 @@ async function loadManifest() {
 
 searchInput.addEventListener("input", renderFolderView);
 closeViewer.addEventListener("click", hideViewer);
-loadManifest();
+viewerBackdrop.addEventListener("click", hideViewer);
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape" && !viewerModal.hidden) {
+    hideViewer();
+  }
+});
 
+loadManifest();

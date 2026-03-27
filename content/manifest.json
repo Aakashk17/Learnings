@@ -1,6 +1,6 @@
 ﻿{
-    "generatedAt":  "2026-03-26T09:41:32.4115721Z",
-    "itemCount":  15,
+    "generatedAt":  "2026-03-27T05:29:55.5098191Z",
+    "itemCount":  16,
     "items":  [
                   {
                       "title":  "Claude Code in Action",
@@ -59,7 +59,7 @@
                       "updatedAt":  "2026-03-26T05:44:41.0480947Z"
                   },
                   {
-                      "title":  "Build AI Apps with Claude From Zero - Part 02",
+                      "title":  "Build AI Apps with Claude From Zero - Part 02 - Prompt Evaluation",
                       "path":  "content/ai/claude/courses/build-ai-apps-with-claude-from-zero/part-02.html",
                       "displayPath":  "content/ai/claude/courses/build-ai-apps-with-claude-from-zero/part-02.html",
                       "kind":  "file",
@@ -70,7 +70,7 @@
                                        "courses",
                                        "build-ai-apps-with-claude-from-zero"
                                    ],
-                      "updatedAt":  "2026-03-26T05:30:22.5710021Z"
+                      "updatedAt":  "2026-03-27T05:28:05.4722015Z"
                   },
                   {
                       "title":  "Build AI Apps with Claude From Zero - Part 03",
@@ -183,6 +183,20 @@
                                        "build-ai-apps-with-claude-from-zero"
                                    ],
                       "updatedAt":  "2026-03-26T05:30:23.0448497Z"
+                  },
+                  {
+                      "title":  "Claude Agent Skills - The Ultimate Beginner\u0027s Guide",
+                      "path":  "content/ai/claude/courses/claude-agent-skills-the-ultimate-beginners-guide/course.html",
+                      "displayPath":  "content/ai/claude/courses/claude-agent-skills-the-ultimate-beginners-guide/course.html",
+                      "kind":  "file",
+                      "target":  "_self",
+                      "segments":  [
+                                       "ai",
+                                       "claude",
+                                       "courses",
+                                       "claude-agent-skills-the-ultimate-beginners-guide"
+                                   ],
+                      "updatedAt":  "2026-03-27T05:28:05.5560094Z"
                   },
                   {
                       "title":  "Back-End Start Here",

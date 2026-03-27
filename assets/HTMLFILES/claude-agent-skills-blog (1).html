@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Claude Agent Skills — The Ultimate Beginner's Guide</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg: #0d0f14;
+    --surface: #14171f;
+    --surface2: #1c2030;
+    --border: #2a2f42;
+    --accent: #ff6b35;
+    --accent2: #7c6af7;
+    --accent3: #2de0a5;
+    --text: #e8eaf2;
+    --muted: #8892a4;
+    --heading: #ffffff;
+    --tag-bg: rgba(124,106,247,0.12);
+    --tag-color: #a89cf7;
+    --card-shadow: 0 4px 32px rgba(0,0,0,0.4);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 17px;
+    line-height: 1.75;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── NOISE GRAIN OVERLAY ── */
+  body::before {
+    content: '';
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    background-size: 200px;
+    opacity: 0.5;
+  }
+
+  .wrap { max-width: 860px; margin: 0 auto; padding: 0 24px; position: relative; z-index: 1; }
+
+  /* ── HEADER HERO ── */
+  header {
+    padding: 80px 0 64px;
+    position: relative;
+    overflow: hidden;
+  }
+  header::after {
+    content: '';
+    position: absolute; top: -120px; right: -200px; width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(124,106,247,0.18) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .blog-label {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px; letter-spacing: 2.5px; text-transform: uppercase;
+    color: var(--accent3); padding: 6px 14px;
+    border: 1px solid rgba(45,224,165,0.3);
+    border-radius: 4px; margin-bottom: 24px;
+  }
+  .blog-label span { width: 6px; height: 6px; background: var(--accent3); border-radius: 50%; display: inline-block; animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(0.8)} }
+
+  h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(36px, 6vw, 64px);
+    font-weight: 800;
+    line-height: 1.1;
+    color: var(--heading);
+    margin-bottom: 20px;
+  }
+  h1 em { font-style: normal; color: var(--accent); }
+  h1 strong { font-style: normal; color: var(--accent2); }
+
+  .hero-sub {
+    font-size: 18px; color: var(--muted); max-width: 600px; line-height: 1.7;
+    margin-bottom: 32px;
+  }
+
+  .meta-row {
+    display: flex; flex-wrap: wrap; gap: 16px; align-items: center;
+  }
+  .meta-tag {
+    background: var(--tag-bg); color: var(--tag-color);
+    font-size: 12px; font-family: 'DM Mono', monospace;
+    padding: 5px 12px; border-radius: 4px; letter-spacing: 0.5px;
+  }
+  .meta-tag.orange { background: rgba(255,107,53,0.12); color: #ff9066; }
+  .meta-tag.green { background: rgba(45,224,165,0.1); color: var(--accent3); }
+
+  /* ── PROGRESS BAR (decorative) ── */
+  .progress-bar {
+    width: 100%; height: 3px;
+    background: var(--border); border-radius: 2px; margin: 32px 0;
+    overflow: hidden;
+  }
+  .progress-bar-fill {
+    width: 100%; height: 100%;
+    background: linear-gradient(90deg, var(--accent2), var(--accent), var(--accent3));
+    animation: shimmer 3s linear infinite;
+    background-size: 200%;
+  }
+  @keyframes shimmer { 0%{background-position:0%} 100%{background-position:200%} }
+
+  /* ── SECTION HEADINGS ── */
+  h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(22px, 3vw, 32px);
+    font-weight: 700; color: var(--heading);
+    margin: 64px 0 20px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  h2 .num {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px; color: var(--accent); font-weight: 400;
+    border: 1px solid rgba(255,107,53,0.3);
+    padding: 3px 8px; border-radius: 4px;
+    flex-shrink: 0;
+  }
+  h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 20px; font-weight: 700;
+    color: var(--heading); margin: 32px 0 12px;
+  }
+
+  p { margin-bottom: 16px; color: var(--text); }
+  strong { color: var(--heading); font-weight: 600; }
+  em { color: var(--accent3); font-style: normal; }
+
+  /* ── DIVIDER ── */
+  hr { border: none; border-top: 1px solid var(--border); margin: 48px 0; }
+
+  /* ── CALLOUT BOX ── */
+  .callout {
+    background: var(--surface);
+    border-left: 3px solid var(--accent2);
+    border-radius: 0 12px 12px 0;
+    padding: 20px 24px;
+    margin: 24px 0;
+  }
+  .callout.orange { border-color: var(--accent); }
+  .callout.green { border-color: var(--accent3); }
+  .callout-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
+    color: var(--accent2); margin-bottom: 8px;
+  }
+  .callout.orange .callout-label { color: var(--accent); }
+  .callout.green .callout-label { color: var(--accent3); }
+
+  /* ── CARDS GRID ── */
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 16px; margin: 24px 0;
+  }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+  .card:hover { border-color: var(--accent2); transform: translateY(-2px); }
+  .card-icon { font-size: 28px; margin-bottom: 10px; }
+  .card h4 { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; color: var(--heading); margin-bottom: 6px; }
+  .card p { font-size: 14px; color: var(--muted); margin: 0; }
+
+  /* ── CODE BLOCK ── */
+  .code-block {
+    background: #0a0c10;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px 24px;
+    margin: 20px 0;
+    overflow-x: auto;
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    line-height: 1.8;
+  }
+  .code-block .comment { color: #4a5568; }
+  .code-block .key { color: var(--accent2); }
+  .code-block .val { color: var(--accent3); }
+  .code-block .str { color: #f6c87a; }
+  .code-block .head { color: var(--accent); font-weight: 500; }
+
+  /* ── STEPS ── */
+  .steps { margin: 24px 0; }
+  .step {
+    display: flex; gap: 20px; align-items: flex-start;
+    margin-bottom: 24px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--border);
+  }
+  .step:last-child { border-bottom: none; padding-bottom: 0; }
+  .step-num {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent2), var(--accent));
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 800;
+    color: white; flex-shrink: 0; margin-top: 2px;
+  }
+  .step-content h4 { font-family: 'Syne', sans-serif; font-weight: 700; color: var(--heading); margin-bottom: 6px; font-size: 16px; }
+  .step-content p { font-size: 15px; color: var(--muted); margin: 0; }
+
+  /* ── SKILLS LIST ── */
+  .skill-list { margin: 24px 0; }
+  .skill-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px 20px;
+    margin-bottom: 12px;
+    display: flex; gap: 16px; align-items: flex-start;
+    transition: border-color 0.2s;
+  }
+  .skill-item:hover { border-color: var(--accent3); }
+  .skill-emoji { font-size: 22px; margin-top: 2px; flex-shrink: 0; }
+  .skill-body h4 { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; color: var(--heading); margin-bottom: 4px; }
+  .skill-body p { font-size: 14px; color: var(--muted); margin: 0; }
+  .skill-tag {
+    font-size: 11px; font-family: 'DM Mono', monospace;
+    padding: 2px 8px; border-radius: 4px; margin-left: 8px;
+    background: rgba(45,224,165,0.1); color: var(--accent3);
+    vertical-align: middle;
+  }
+
+  /* ── TIPS GRID ── */
+  .tips-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 14px; margin: 24px 0;
+  }
+  .tip-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px; padding: 18px;
+    position: relative; overflow: hidden;
+  }
+  .tip-card::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, var(--accent2), var(--accent3));
+  }
+  .tip-card h4 { font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700; color: var(--heading); margin-bottom: 6px; }
+  .tip-card p { font-size: 13px; color: var(--muted); margin: 0; line-height: 1.6; }
+
+  /* ── COMPARISON TABLE ── */
+  .compare-table {
+    width: 100%; border-collapse: collapse; margin: 24px 0;
+    font-size: 14px;
+  }
+  .compare-table th {
+    background: var(--surface2); color: var(--heading);
+    font-family: 'Syne', sans-serif; font-weight: 700;
+    padding: 12px 16px; text-align: left;
+    border-bottom: 2px solid var(--border);
+  }
+  .compare-table td {
+    padding: 12px 16px; border-bottom: 1px solid var(--border);
+    color: var(--muted);
+  }
+  .compare-table tr:last-child td { border-bottom: none; }
+  .compare-table td:first-child { color: var(--text); font-weight: 500; }
+  .compare-table .yes { color: var(--accent3); }
+  .compare-table .no { color: #666; }
+
+  /* ── QUOTE BOX ── */
+  .quote-box {
+    border: 1px solid var(--border);
+    border-radius: 12px; padding: 24px 28px;
+    background: linear-gradient(135deg, rgba(124,106,247,0.06), rgba(45,224,165,0.04));
+    margin: 32px 0; text-align: center;
+  }
+  .quote-box p { font-size: 19px; font-style: italic; color: var(--text); margin-bottom: 8px; }
+  .quote-box span { font-size: 13px; color: var(--muted); font-family: 'DM Mono', monospace; }
+
+  /* ── TOC ── */
+  .toc {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px; padding: 24px 28px;
+    margin: 32px 0;
+  }
+  .toc-title {
+    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 14px;
+    color: var(--muted); letter-spacing: 2px; text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+  .toc ol { padding-left: 18px; }
+  .toc li { margin-bottom: 8px; }
+  .toc a { color: var(--accent2); text-decoration: none; font-size: 15px; }
+  .toc a:hover { color: var(--accent3); text-decoration: underline; }
+
+  /* ── FOOTER ── */
+  footer {
+    margin-top: 96px; padding: 40px 0;
+    border-top: 1px solid var(--border);
+    text-align: center;
+  }
+  footer p { color: var(--muted); font-size: 14px; }
+  footer a { color: var(--accent2); text-decoration: none; }
+  footer a:hover { text-decoration: underline; }
+
+  /* ── BADGE INLINE ── */
+  .badge {
+    display: inline-block;
+    font-size: 12px; font-family: 'DM Mono', monospace;
+    padding: 3px 10px; border-radius: 20px;
+    background: rgba(255,107,53,0.12); color: var(--accent);
+    margin-left: 8px; vertical-align: middle;
+  }
+
+  /* ── PRACTICE BOX ── */
+  .practice-box {
+    background: linear-gradient(135deg, rgba(45,224,165,0.06), rgba(124,106,247,0.06));
+    border: 1px solid rgba(45,224,165,0.2);
+    border-radius: 12px; padding: 24px 28px; margin: 24px 0;
+  }
+  .practice-title {
+    font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 700;
+    color: var(--accent3); margin-bottom: 14px;
+    display: flex; align-items: center; gap: 8px;
+  }
+
+  @media (max-width: 600px) {
+    .cards, .tips-grid { grid-template-columns: 1fr; }
+    .compare-table { font-size: 12px; }
+    .compare-table th, .compare-table td { padding: 10px 10px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <!-- ── HEADER ── -->
+  <header>
+    <div class="blog-label"><span></span> Anthropic Academy • Claude Skills Guide</div>
+    <h1>
+      <em>Claude Agent Skills</em><br>
+      The <strong>Complete</strong> Beginner's Guide<br>
+      for Future AI Builders
+    </h1>
+    <div class="meta-row">
+      <span class="meta-tag">📚 Course: Introduction to Agent Skills</span>
+      <span class="meta-tag orange">⏱ 2 hrs 19 mins</span>
+      <span class="meta-tag green">✅ Free + Certificate</span>
+    </div>
+    <div class="progress-bar"><div class="progress-bar-fill"></div></div>
+  </header>
+
+  <!-- ── TABLE OF CONTENTS ── -->
+  <div class="toc">
+    <div class="toc-title">📋 What's inside</div>
+    <ol>
+      <li><a href="#what-are-skills">What are Claude Skills?</a></li>
+      <li><a href="#skill-structure">How a Skill is Built</a></li>
+      <li><a href="#skill-types">4 Types of Skills</a></li>
+      <li><a href="#vs-tools">Skills vs Tools vs MCP vs Subagents</a></li>
+      <li><a href="#prebuilt">Pre-Built Skills</a></li>
+      <li><a href="#custom">Creating Custom Skills</a></li>
+      <li><a href="#where-to-use">Where to Use Skills</a></li>
+      <li><a href="#top10">🔥 Top 10 Skills for Every Area</a></li>
+      <li><a href="#tips">Tips & Tricks</a></li>
+      <li><a href="#practice">Practice Labs</a></li>
+    </ol>
+  </div>
+
+  <!-- ── SECTION 1 ── -->
+  <h2 id="what-are-skills"><span class="num">01</span> What Are Claude Skills?</h2>
+
+  <p>Every time you ask Claude to help with something, you have to re-explain your rules — "use TypeScript, write tests, follow our style guide..." That gets exhausting. <strong>Skills fix this.</strong> A Skill is a folder with a file called <code>SKILL.md</code> that tells Claude how to behave for a specific task — written once, reused forever. Think of it like a recipe card: give the chef the card once, and they never need instructions again.</p>
+
+  <div class="callout">
+    <div class="callout-label">💡 One-Line Definition</div>
+    <p>A <strong>Skill</strong> = a folder + a <code>SKILL.md</code> file. Write your rules once. Claude follows them every time.</p>
+  </div>
+
+  <!-- ── SECTION 2 ── -->
+  <h2 id="skill-structure"><span class="num">02</span> How a Skill is Built</h2>
+
+  <div class="code-block">
+<span class="head">my-skill/</span>
+├── <span class="key">SKILL.md</span>      <span class="comment">← Main instructions (required)</span>
+├── <span class="val">examples/</span>     <span class="comment">← Good/bad output examples (optional)</span>
+└── <span class="val">templates/</span>    <span class="comment">← Reusable templates (optional)</span>
+  </div>
+
+  <div class="code-block">
+<span class="comment">---</span>
+<span class="key">name:</span> <span class="str">code-review</span>
+<span class="key">description:</span> <span class="str">Reviews code for bugs, style, and security</span>
+<span class="comment">---</span>
+
+When reviewing code, check for: bugs, readability, security issues, and tests.
+Be kind — give a specific fix for every problem you find.
+  </div>
+
+  <div class="callout green">
+    <div class="callout-label">🧠 Progressive Disclosure</div>
+    <p>Claude only loads the extra files when needed — saving context (AI "brain space") for the actual work. Like a textbook appendix: only open it when you need it.</p>
+  </div>
+
+  <!-- ── SECTION 4 ── -->
+  <h2 id="skill-types"><span class="num">03</span> The 4 Types of Skills</h2>
+
+  <div class="cards">
+    <div class="card">
+      <div class="card-icon">🏢</div>
+      <h4>Enterprise</h4>
+      <p>Used across a whole company. IT admin sets it up once — 500 employees all get the same safe, consistent Claude behavior.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">👤</div>
+      <h4>Personal</h4>
+      <p>Just for you. A student creates a <code>my-notes</code> Skill so Claude always formats notes their way — automatically.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">📁</div>
+      <h4>Project</h4>
+      <p>Lives inside one project's folder. A <code>StudyBuddy</code> app Skill tells Claude: "React + Tailwind + Vitest, always." No re-explaining every session.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">🔌</div>
+      <h4>Plugin</h4>
+      <p>Pre-packaged and shareable — like installing an app. Anthropic ships official ones (Excel, PowerPoint). Install once, get expert behavior instantly.</p>
+    </div>
+  </div>
+
+  <div class="callout orange">
+    <div class="callout-label">🏢 Enterprise Example</div>
+    <p>A hospital's <strong>"patient-safety"</strong> Skill: always recommend seeing a doctor, never give drug doses, use plain language. Every staff member's Claude follows this automatically.</p>
+  </div>
+  <div class="callout">
+    <div class="callout-label">🔌 Plugin Example</div>
+    <p>A marketing team installs an <strong>"SEO-writing"</strong> Skill — H2/H3 tags, short paragraphs, 8th-grade reading level. Expert SEO knowledge, zero training required.</p>
+  </div>
+
+  <!-- ── SECTION 5 ── -->
+  <h2 id="vs-tools"><span class="num">04</span> Skills vs Tools vs MCP vs Subagents</h2>
+
+  <table class="compare-table">
+    <thead>
+      <tr><th>Feature</th><th>Skills</th><th>Tools</th><th>MCP</th><th>Subagents</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Does</td><td>Adds knowledge & rules</td><td>Adds actions (search, run code)</td><td>Connects external services</td><td>Parallel AI tasks</td></tr>
+      <tr><td>Needs coding?</td><td class="yes">✅ Just markdown</td><td class="no">⚠️ Yes</td><td class="no">⚠️ Yes</td><td class="no">⚠️ Advanced</td></tr>
+      <tr><td>Best for</td><td>Beginners ✅</td><td>Developers</td><td>Developers</td><td>Experts</td></tr>
+      <tr><td>Example</td><td>"Always use TypeScript"</td><td>"Search the web"</td><td>"Read my Drive"</td><td>"AI writes, AI reviews"</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout">
+    <div class="callout-label">🎯 Quick Analogy</div>
+    <p><strong>Skills</strong> = coach's rulebook · <strong>Tools</strong> = equipment · <strong>MCP</strong> = the stadium's external connections · <strong>Subagents</strong> = assistant coaches working in parallel.</p>
+  </div>
+
+  <!-- ── SECTION 6 ── -->
+  <h2 id="prebuilt"><span class="num">05</span> Pre-Built Skills from Anthropic</h2>
+
+  <div class="skill-list">
+    <div class="skill-item">
+      <div class="skill-emoji">📊</div>
+      <div class="skill-body"><h4>Excel Skill <span class="skill-tag">Pre-built</span></h4><p>Claude creates/edits spreadsheets with correct formulas, formatting, and charts.</p></div>
+    </div>
+    <div class="skill-item">
+      <div class="skill-emoji">📑</div>
+      <div class="skill-body"><h4>PowerPoint Skill <span class="skill-tag">Pre-built</span></h4><p>Claude builds structured, professional slide decks with good layouts automatically.</p></div>
+    </div>
+    <div class="skill-item">
+      <div class="skill-emoji">🛠️</div>
+      <div class="skill-body"><h4>Skill Creator Skill <span class="skill-tag">Meta!</span></h4><p>A Skill that helps you <em>write</em> Skills. Ask Claude to help you build one — very effective.</p></div>
+    </div>
+  </div>
+
+  <div class="callout green">
+    <div class="callout-label">🎬 Course Demo</div>
+    <p>Students use Excel + PowerPoint Skills together to turn raw sales data into a full marketing presentation — fully automated inside Claude.ai.</p>
+  </div>
+
+  <!-- ── SECTION 7 ── -->
+  <h2 id="custom"><span class="num">06</span> Creating Custom Skills</h2>
+
+  <p>You can build a Skill for anything. The course walks through two examples:</p>
+
+  <div class="code-block">
+<span class="comment">--- Practice Question Generator ---</span>
+Given study notes:
+<span class="val">1.</span> Find the <span class="key">5 key concepts</span>
+<span class="val">2.</span> For each: write 1 multiple-choice + 1 short-answer question
+<span class="val">3.</span> Put answers at the bottom. Mix easy/medium/hard difficulty.
+  </div>
+
+  <p>The second example is a <strong>Time Series Analysis Skill</strong> — tells Claude which stats to run, what charts to make, and how to explain results to non-technical readers.</p>
+
+  <div class="callout orange">
+    <div class="callout-label">✍️ Golden Rules for Writing Skills</div>
+    <p>Be specific. Show examples of good vs. bad output. Keep SKILL.md short. Test with different inputs. Iterate.</p>
+  </div>
+
+  <!-- ── SECTION 8 ── -->
+  <h2 id="where-to-use"><span class="num">07</span> Where to Use Skills</h2>
+
+  <div class="cards">
+    <div class="card"><div class="card-icon">💬</div><h4>Claude.ai</h4><p>Upload the Skill in chat. No coding needed.</p></div>
+    <div class="card"><div class="card-icon">⌨️</div><h4>Claude Code</h4><p>CLI tool — Skills make it an expert in your codebase.</p></div>
+    <div class="card"><div class="card-icon">🔗</div><h4>Claude API</h4><p>Load a Skill at the start of any API call.</p></div>
+    <div class="card"><div class="card-icon">🤖</div><h4>Agent SDK</h4><p>Build research agents that auto-generate learning guides.</p></div>
+  </div>
+
+  <!-- ── SECTION 9 ── -->
+  <h2 id="top10"><span class="num">08</span> 🔥 Top 10 Skills — Every Area of Life</h2>
+
+  <div class="skill-list">
+    <div class="skill-item"><div class="skill-emoji">💻</div><div class="skill-body"><h4>1. Code Review <span class="skill-tag">Dev</span></h4><p>Your team's coding standards, what bugs to catch — consistent reviews every time.</p></div></div>
+    <div class="skill-item"><div class="skill-emoji">📝</div><div class="skill-body"><h4>2. Essay Writing <span class="skill-tag">Education</span></h4><p>Thesis structure, citation style, word count — Claude writes essays in your voice.</p></div></div>
+    <div class="skill-item"><div class="skill-emoji">🐛</div><div class="skill-body"><h4>3. Bug Debugging <span class="skill-tag">Dev</span></h4><p>Your stack, error format, what to check first — structured debugging every session.</p></div></div>
+    <div class="skill-item"><div class="skill-emoji">📣</div><div class="skill-body"><h4>4. Social Media Content <span class="skill-tag">Marketing</span></h4><p>Brand voice, hashtags, post length per platform — every post sounds like you.</p></div></div>
+    <div class="skill-item"><div class="skill-emoji">📊</div><div class="skill-body"><h4>5. Data Analysis <span class="skill-tag">Research</span></h4><p>Which stats to run, how to explain results simply, when to flag outliers.</p></div></div>
+    <div class="skill-item"><div class="skill-emoji">🎓</div><div class="skill-body"><h4>6. Study Notes <span class="skill-tag">Education</span></h4><p>Your note format, key-term highlighting, flashcard summary at the end.</p></div></div>
+    <div class="skill-item"><div class="skill-emoji">📧</div><div class="skill-body"><h4>7. Professional Email <span class="skill-tag">Business</span></h4><p>Tone, subject line rules, how to structure requests vs. updates vs. follow-ups.</p></div></div>
+    <div class="skill-item"><div class="skill-emoji">🎮</div><div class="skill-body"><h4>8. Game Design Docs <span class="skill-tag">Creative</span></h4><p>Mechanics, character sheets, level notes, balance rules — great for indie devs.</p></div></div>
+    <div class="skill-item"><div class="skill-emoji">🔒</div><div class="skill-body"><h4>9. Security Audit <span class="skill-tag">Dev</span></h4><p>OWASP Top 10, secrets handling, how to write a security report.</p></div></div>
+    <div class="skill-item"><div class="skill-emoji">🎬</div><div class="skill-body"><h4>10. Content Scripts <span class="skill-tag">Creative</span></h4><p>Hook style, pacing, CTA wording — every video script sounds authentically like you.</p></div></div>
+  </div>
+
+  <!-- ── SECTION 10 ── -->
+  <h2 id="tips"><span class="num">09</span> Tips & Tricks — Use Skills Like a Pro</h2>
+
+  <div class="tips-grid">
+    <div class="tip-card"><h4>🧪 Test Edge Cases</h4><p>Try weird inputs — blank docs, wrong language, missing data. Fix gaps before relying on the Skill.</p></div>
+    <div class="tip-card"><h4>📦 One Job Per Skill</h4><p>Don't cram everything in one Skill. Split "code review + security + tests" into three separate Skills.</p></div>
+    <div class="tip-card"><h4>🗣️ Write Like Talking to a New Intern</h4><p>Be explicit: "We use React 18" not just "use the framework."</p></div>
+    <div class="tip-card"><h4>📎 Examples Beat Rules</h4><p>Showing good vs. bad output is 10x more effective than an abstract rule.</p></div>
+    <div class="tip-card"><h4>🔢 Version Control Skills</h4><p>Put Skills in Git. Update when your process changes. Roll back if something breaks.</p></div>
+    <div class="tip-card"><h4>🧩 Chain Skills Together</h4><p>Data Skill → Presentation Skill → Email Skill = a full automated workflow.</p></div>
+    <div class="tip-card"><h4>🔍 Use the Skill Creator Skill</h4><p>Ask Claude (with the meta-Skill loaded) to help you write new Skills. Extremely effective.</p></div>
+    <div class="tip-card"><h4>📏 Keep SKILL.md Short</h4><p>Under 200 lines. Move details into subfolders — Claude loads them on demand.</p></div>
+    <div class="tip-card"><h4>🌐 Open Standard = Future-Proof</h4><p>Skills work with any compatible agent, not just Claude today. Build once, use anywhere.</p></div>
+    <div class="tip-card"><h4>🔄 Review Monthly</h4><p>Your process evolves. Update your Skills or they'll give outdated guidance.</p></div>
+  </div>
+
+  <!-- ── SECTION 11 ── -->
+  <h2 id="practice"><span class="num">10</span> Practice Labs — Do It Yourself</h2>
+
+  <div class="practice-box">
+    <div class="practice-title">🧪 Lab 1 — Your First Personal Skill · Beginner · 30 min</div>
+    <div class="steps">
+      <div class="step"><div class="step-num">1</div><div class="step-content"><h4>Create a folder</h4><p>Name it <code>my-first-skill</code>.</p></div></div>
+      <div class="step"><div class="step-num">2</div><div class="step-content"><h4>Write SKILL.md</h4><p>Describe exactly how you want study notes formatted — bullet points, bold headers, summary at the end?</p></div></div>
+      <div class="step"><div class="step-num">3</div><div class="step-content"><h4>Test in Claude.ai</h4><p>Paste your SKILL.md + some class notes. Did Claude follow your format?</p></div></div>
+      <div class="step"><div class="step-num">4</div><div class="step-content"><h4>Iterate</h4><p>Try 3 different note sets. Fix whatever Claude got wrong. Repeat.</p></div></div>
+    </div>
+  </div>
+
+  <div class="practice-box">
+    <div class="practice-title">🧪 Lab 2 — Project Skill · Intermediate · 45 min</div>
+    <div class="steps">
+      <div class="step"><div class="step-num">1</div><div class="step-content"><h4>Pick a project</h4><p>Any code project — even a simple HTML page works.</p></div></div>
+      <div class="step"><div class="step-num">2</div><div class="step-content"><h4>List the rules</h4><p>Language, naming conventions, folder structure, common tasks.</p></div></div>
+      <div class="step"><div class="step-num">3</div><div class="step-content"><h4>Write SKILL.md</h4><p>Include a front-matter header (<code>---</code> block) with name and description.</p></div></div>
+      <div class="step"><div class="step-num">4</div><div class="step-content"><h4>Test it</h4><p>Ask Claude to "add a dark mode toggle." Did it follow your conventions? Fix and repeat.</p></div></div>
+    </div>
+  </div>
+
+  <div class="practice-box">
+    <div class="practice-title">🧪 Lab 3 — Use a Pre-Built Skill · Any Level · 1 hr</div>
+    <div class="steps">
+      <div class="step"><div class="step-num">1</div><div class="step-content"><h4>Download the PowerPoint Skill</h4><p>Find it on Anthropic's GitHub or docs page.</p></div></div>
+      <div class="step"><div class="step-num">2</div><div class="step-content"><h4>Load in Claude.ai</h4><p>Add the Skill folder to your session.</p></div></div>
+      <div class="step"><div class="step-num">3</div><div class="step-content"><h4>Ask for a presentation</h4><p>"Create a 5-slide deck on climate change for 10th graders."</p></div></div>
+      <div class="step"><div class="step-num">4</div><div class="step-content"><h4>Customize it</h4><p>Add "include a fun fact on every slide" to the SKILL.md and re-run. Compare the results.</p></div></div>
+    </div>
+  </div>
+
+  <div class="practice-box">
+    <div class="practice-title">🧪 Lab 4 — Skill-Combo Workflow · Advanced · 2 hrs</div>
+    <div class="steps">
+      <div class="step"><div class="step-num">1</div><div class="step-content"><h4>Pick a multi-step task</h4><p>Example: Research → Notes → Blog Post → Social Caption.</p></div></div>
+      <div class="step"><div class="step-num">2</div><div class="step-content"><h4>One Skill per step</h4><p>Write <code>research-notes</code>, <code>blog-writer</code>, and <code>social-caption</code> Skills — each short and focused.</p></div></div>
+      <div class="step"><div class="step-num">3</div><div class="step-content"><h4>Chain them</h4><p>Run Skill 1 → feed output into Skill 2 → feed into Skill 3. Notice the quality difference.</p></div></div>
+      <div class="step"><div class="step-num">4</div><div class="step-content"><h4>Share it</h4><p>Write a README. Give it to a friend. If they can run the workflow without your help — it's a great Skill.</p></div></div>
+    </div>
+  </div>
+
+  <!-- ── QUOTE ── -->
+  <div class="quote-box">
+    <p>"Stop repeating yourself. Teach Claude once. Use it forever."</p>
+    <span>— The core philosophy of Agent Skills</span>
+  </div>
+
+  <!-- ── FINAL TAKEAWAY ── -->
+  <h2><span class="num">✨</span> Key Takeaways</h2>
+
+  <div class="cards">
+    <div class="card"><div class="card-icon">📄</div><h4>Skills = Markdown</h4><p>No code. Just plain English instructions in a SKILL.md file.</p></div>
+    <div class="card"><div class="card-icon">🏗️</div><h4>4 Scopes</h4><p>Enterprise · Personal · Project · Plugin — each fits a different situation.</p></div>
+    <div class="card"><div class="card-icon">🔁</div><h4>Write Once, Use Everywhere</h4><p>Open standard → works in Claude.ai, Code, API, and Agent SDK.</p></div>
+    <div class="card"><div class="card-icon">🌱</div><h4>Start Small</h4><p>Build one tiny Skill this week. A month of iteration = a library that makes you 3x faster.</p></div>
+  </div>
+
+  <div class="callout green">
+    <div class="callout-label">🎓 Take the Course</div>
+    <p>Free at <strong>anthropic.skilljar.com/introduction-to-agent-skills</strong> · ~2 hrs 19 mins · Official Anthropic certificate. Also on <a href="https://www.deeplearning.ai/short-courses/agent-skills-with-anthropic/" style="color:var(--accent3)">DeepLearning.AI</a> with coding exercises.</p>
+  </div>
+
+  <!-- ── FOOTER ── -->
+  <footer>
+    <p>Written as a learning companion to the <a href="https://anthropic.skilljar.com/introduction-to-agent-skills">Anthropic Agent Skills Course</a> · Also available on <a href="https://www.deeplearning.ai/short-courses/agent-skills-with-anthropic/">DeepLearning.AI</a></p>
+    <p style="margin-top:8px">Made with ❤️ for curious minds who want to understand AI — not just use it.</p>
+  </footer>
+
+</div>
+</body>
+</html>

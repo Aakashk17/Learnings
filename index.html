@@ -18,7 +18,7 @@
         <h1>All your learnings in one place.</h1>
         <p class="hero__intro">
           Drop HTML files into folders like <code>content/ai/claude/courses/course.html</code>. Browse one folder at a time,
-          preview your own HTML pages inside this site, and open external resources in a new tab.
+          and preview both your HTML pages and external links inside the same popup without leaving this site.
         </p>
         <div class="hero__actions">
           <a class="button button--primary" href="#library">Browse library</a>
@@ -63,19 +63,25 @@
         <nav id="breadcrumbs" class="breadcrumbs" aria-label="Folder breadcrumbs"></nav>
         <div id="browserGrid" class="browser-grid"></div>
       </section>
+    </main>
+  </div>
 
-      <section id="viewerPanel" class="tree-panel viewer-panel" hidden>
-        <div class="viewer-panel__header">
-          <div>
-            <p class="eyebrow">Local Preview</p>
-            <h3 id="viewerTitle">Select a local HTML file</h3>
-            <p id="viewerMeta" class="viewer-meta">Your own HTML files will render inside this page.</p>
-          </div>
+  <div id="viewerModal" class="viewer-modal" hidden>
+    <button class="viewer-modal__backdrop" type="button" aria-label="Close preview" data-close-viewer></button>
+    <section class="viewer-dialog" role="dialog" aria-modal="true" aria-labelledby="viewerTitle">
+      <div class="viewer-panel__header viewer-panel__header--modal">
+        <div>
+          <p id="viewerKind" class="eyebrow">Preview</p>
+          <h3 id="viewerTitle">Select a page to preview</h3>
+          <p id="viewerMeta" class="viewer-meta">Pages open here in an 80% popup.</p>
+        </div>
+        <div class="viewer-actions">
+          <a id="openViewerLink" class="button button--secondary" href="#" target="_blank" rel="noopener noreferrer">Open in new tab</a>
           <button id="closeViewer" class="button button--secondary" type="button">Close preview</button>
         </div>
-        <iframe id="viewerFrame" class="viewer-frame" title="Learning page preview"></iframe>
-      </section>
-    </main>
+      </div>
+      <iframe id="viewerFrame" class="viewer-frame" title="Learning page preview"></iframe>
+    </section>
   </div>
 
   <script src="assets/js/app.js" defer></script>
